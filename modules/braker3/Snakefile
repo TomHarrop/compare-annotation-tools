@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+
+import re
+import tempfile
+from snakemake.logging import logger
+
+
+def collect_input(wildcards):
+    if wildcards.file == "genome":
+        return query_genome
+    elif wildcards.file == "proteins":
+        return proteins
+    else:
+        raise ValueError(f"wtf {wildcards.file}")
+
+
+###########
+# GLOBALS #
+###########
+
+# containers
+bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
+braker3 = "docker://teambraker/braker3:v.1.0.4"
+
+
+# set up a temporary directory for this run
+try:
+    run_tmpdir = config["run_tmpdir"]
+    logger.info(f"Caught run_tmpdir {run_tmpdir}")
+except KeyError as e:
+    logger.info(f"{e} not set in config")
+    run_tmpdir = tempfile.mkdtemp()
+    logger.info(f"Setting run_tmpdir to {run_tmpdir}")
+    logger.warning("This probably won't work on a cluster!")
+
+# set up directories
+outdir = Path(config["outdir"] if "outdir" in config else ".")
+logger.debug(f"outdir: {outdir}")
+logdir = Path(outdir, "logs")
+benchdir = Path(logdir, "benchmarks")
+
+# catch input
+gm_licence = config["gm_license"]
+proteins = config["proteins"]
+query_genome = config["query_genome"]
+rnaseq = config["rnaseq"]
+species_name = config["species_name"]
+
+logger.info(f"Masking query_genome {query_genome}")
+
+#########
+# RULES #
+#########
+
+
+# braker3
+rule braker3:
+    input:
+        ref=Path(outdir, "000_reference-data", "genome.fa"),
+        proteins=Path(outdir, "000_reference-data", "proteins.fa"),
+        rnaseq=rnaseq,
+    output:
+        expand(
+            Path(outdir, "{outfile}"),
+            outfile=[
+                "braker.aa",
+                "braker.codingseq",
+                "braker.gff3",
+                "hintsfile.gff",
+            ],
+        ),
+    params:
+        wd=Path(outdir),
+        species=species_name,
+    log:
+        Path(logdir, "braker3.log"),
+    benchmark:
+        Path(benchdir, "braker3.txt")
+    threads: lambda wildcards, attempt: 10 * attempt
+    resources:
+        time=lambda wildcards, attempt: 1440 * attempt,
+        mem_mb=lambda wildcards, attempt: 12e3 * attempt,
+    container:
+        braker3
+    shell:
+        "braker.pl "
+        "--bam={input.rnaseq} "
+        "--genome={input.ref} "
+        "--gff3 "
+        "--prot_seq={input.proteins} "
+        "--softmasking "
+        "--species={params.species} "
+        "--threads {threads} "
+        "--workingdir={params.wd} "
+        "&> {log}"
+
+
+# collect input
+rule reformat:
+    input:
+        collect_input,
+    output:
+        temp(Path(outdir, "000_reference-data", "{file}.fa")),
+    log:
+        Path(logdir, "reformat.{file}.log"),
+    container:
+        bbmap
+    shell:
+        "reformat.sh in={input} out={output} 2>{log}"
