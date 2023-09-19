@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import re
 import tempfile
 from snakemake.logging import logger
 
@@ -21,7 +20,6 @@ def collect_input(wildcards):
 # containers
 bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
 braker3 = "docker://teambraker/braker3:v.1.0.4"
-
 
 # set up a temporary directory for this run
 try:
