@@ -1,0 +1,240 @@
+#!/usr/bin/env python3
+
+import tempfile
+from snakemake.logging import logger
+
+
+def collect_input(wildcards):
+    if wildcards.file == "genome":
+        return query_genome
+    elif wildcards.file == "proteins":
+        return proteins
+    else:
+        raise ValueError(f"wtf {wildcards.file}")
+
+
+###########
+# GLOBALS #
+###########
+
+# containers
+bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
+braker3 = "docker://teambraker/braker3:v.1.0.4"
+seqkit = "docker://quay.io/biocontainers/seqkit:2.5.1--h9ee0642_0"
+funannotate = "docker://ghcr.io/tomharrop/container-funannotate:1.8.15_cv2"
+
+
+# this is the path to the included adaptors file in bbmap
+bbmap_adaptors = Path(
+    "/usr", "local", "opt", "bbmap-39.01-1", "resources", "adapters.fa"
+)
+
+# set up a temporary directory for this run
+try:
+    run_tmpdir = config["run_tmpdir"]
+    logger.info(f"Caught run_tmpdir {run_tmpdir}")
+except KeyError as e:
+    logger.info(f"{e} not set in config")
+    run_tmpdir = tempfile.mkdtemp()
+    logger.info(f"Setting run_tmpdir to {run_tmpdir}")
+    logger.warning("This probably won't work on a cluster!")
+
+# set up directories
+outdir = Path(config["outdir"] if "outdir" in config else ".")
+logger.debug(f"outdir: {outdir}")
+logdir = Path(outdir, "logs")
+benchdir = Path(logdir, "benchmarks")
+
+# catch input
+# proteins = config["proteins"]
+query_genome = config["query_genome"]
+rnaseq = config["rnaseq"]
+species_name = config["species_name"]
+
+
+logger.info(f"Masking query_genome {query_genome}")
+
+#########
+# RULES #
+#########
+
+
+rule target:
+    input:
+        Path(outdir, "funannotate", "funannotate_train.transcripts.gff3"),
+
+rule funannotate_train:
+    input:
+        fasta=Path(run_tmpdir, "genome.fa"),
+        left=Path(outdir, "reads", "reads.trimmed.r1.fq"),
+        right=Path(outdir, "reads", "reads.trimmed.r2.fq"),
+        single=Path(outdir, "reads", "reads.trimmed.singletons.fq"),
+    output:
+        gff=Path(outdir, "funannotate", "funannotate_train.transcripts.gff3"),
+    params:
+        fasta=lambda wildcards, input: Path(input.fasta).resolve(),
+        wd=lambda wildcards, output: Path(output.gff).parent.resolve(),
+    log:
+        Path(logdir, "funannotate_train.log").resolve(),
+    threads: workflow.cores
+    container:
+        funannotate
+    shell:
+        "cp /usr/local/opt/genemark/gm_key_64 ${{HOME}}/.gm_key ; "
+        "funannotate train "
+        # add these to the docker container
+        "--PASAHOME /usr/local/opt/pasa-2.5.2 "
+        "--TRINITYHOME /usr/local/opt/trinity-2.8.5 "
+        "--input {params.fasta} "
+        "--out {params.wd} "
+        "--left {input.left} "
+        "--right {input.right} "
+        # "--single {input.single} "
+        "--stranded RF "
+        "--max_intronlen 10000 "
+        f"--species {species_name} "
+        "--cpus {threads} "
+        " &> {log}"
+
+
+# collect input
+rule split:
+    input:
+        Path(run_tmpdir, "reads.trimmed.paired.fq"),
+    output:
+        r1=Path(outdir, "reads", "reads.trimmed.r1.fq"),
+        r2=Path(outdir, "reads", "reads.trimmed.r2.fq"),
+    log:
+        Path(logdir, "split.log"),
+    threads: 1
+    resources:
+        time=lambda wildcards, attempt: 10 * attempt,
+        mem_mb=lambda wildcards, attempt: 2e3 * attempt,
+    container:
+        bbmap
+    shell:
+        "reformat.sh "
+        "-Xmx{resources.mem_mb}m "
+        "-Xms100m "
+        "in=stdin.fastq "
+        "int=t "
+        "addcolon=t "
+        "out={output.r1} "
+        "out2={output.r2} "
+        "< {input} "
+        "2> {log}"
+
+
+rule collect_singles:
+    input:
+        Path(run_tmpdir, "reads.trimmed.unpaired.fq"),
+    output:
+        Path(outdir, "reads", "reads.trimmed.singletons.fq"),
+    threads: 1
+    shell:
+        "cat <{input} >{output}"
+
+
+rule trim:
+    input:
+        reads=Path(run_tmpdir, "reads.{type}.fq"),
+    output:
+        pipe=pipe(Path(run_tmpdir, "reads.trimmed.{type}.fq")),
+    params:
+        interleaved=lambda wildcards: "t"
+        if wildcards.type == "paired"
+        else "f",
+        adaptors=bbmap_adaptors,
+    log:
+        log=Path(logdir, "trim.{type}.log"),
+        stats=Path(logdir, "trim.{type}.stats.txt"),
+    threads: 2
+    resources:
+        time=lambda wildcards, attempt: 10 * attempt,
+        mem_mb=lambda wildcards, attempt: 2e3 * attempt,
+    container:
+        bbmap
+    shell:
+        "bbduk.sh "
+        "-Xmx{resources.mem_mb}m "
+        "-Xms100m "
+        "threads={threads} "
+        "in={input.reads} "
+        "int={params.interleaved} "
+        "out=stdout.fastq "
+        "outs=/dev/null "
+        "ref={params.adaptors} "
+        "ktrim=r k=23 mink=11 hdist=1 tpe tbo "
+        "forcetrimmod=5 "
+        "stats={log.stats} "
+        ">> {output.pipe} "
+        "2> {log.log} "
+
+
+rule repair:
+    input:
+        Path(run_tmpdir, "reads.fq"),
+    output:
+        out=pipe(Path(run_tmpdir, "reads.paired.fq")),
+        outs=temp(Path(run_tmpdir, "reads.unpaired.fq")),
+    log:
+        Path(logdir, "repair.log"),
+    threads: 1
+    resources:
+        time=lambda wildcards, attempt: 10 * attempt,
+        mem_mb=lambda wildcards, attempt: 4e3 * attempt,
+    container:
+        bbmap
+    shell:
+        "repair.sh "
+        "-Xmx{resources.mem_mb}m "
+        "-Xms100m "
+        "in=stdin.fastq "
+        "int=t "
+        "out=stdout.fastq "
+        "outs={output.outs} "
+        "repair=t "
+        "tossbrokenreads=t "
+        "tossjunk=t "
+        "< {input} "
+        ">> {output.out} "
+        "2> {log}"
+
+
+rule bam2fastq:
+    input:
+        rnaseq,
+    output:
+        pipe=pipe(Path(run_tmpdir, "reads.fq")),
+    log:
+        Path(logdir, "bam2fastq.log"),
+    threads: 1
+    resources:
+        time=lambda wildcards, attempt: 10 * attempt,
+        mem_mb=lambda wildcards, attempt: 4e3 * attempt,
+    container:
+        bbmap
+    shell:
+        "reformat.sh "
+        "-Xmx{resources.mem_mb}m "
+        "-Xms100m "
+        "in={input} "
+        "out=stdout.fq "
+        "trimrname=t "
+        "tossjunk=t "
+        "primaryonly=t "
+        ">> {output.pipe} "
+        "2> {log}"
+
+
+rule reformat:
+    input:
+        collect_input,
+    output:
+        temp(Path(run_tmpdir, "{file}.fa")),
+    log:
+        Path(logdir, "reformat.{file}.log"),
+    container:
+        bbmap
+    shell:
+        "reformat.sh in={input} out={output} 2>{log}"
