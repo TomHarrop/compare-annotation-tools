@@ -56,7 +56,7 @@ except KeyError:
 try:
     rnaseq = config["rnaseq"]
     braker_dict["rnaseq"] = rnaseq
-    params_dict["rnaseq"] = f'--rnaseq={braker_dict["rnaseq"]}'
+    params_dict["rnaseq"] = f'--bam={braker_dict["rnaseq"]}'
 except KeyError:
     logger.info("No rnaseq input")
     params_dict["rnaseq"] = ""
