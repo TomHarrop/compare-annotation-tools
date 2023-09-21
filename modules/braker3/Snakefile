@@ -3,16 +3,6 @@
 import tempfile
 from snakemake.logging import logger
 
-
-def collect_input(wildcards):
-    if wildcards.file == "genome":
-        return query_genome
-    elif wildcards.file == "proteins":
-        return proteins
-    else:
-        raise ValueError(f"wtf {wildcards.file}")
-
-
 ###########
 # GLOBALS #
 ###########
@@ -47,7 +37,7 @@ params_dict = {}
 
 try:
     proteins = config["proteins"]
-    braker_dict["proteins"] =  Path(outdir, "proteins.fa")
+    braker_dict["proteins"] =  proteins
     params_dict["proteins"] = f'--prot_seq={braker_dict["proteins"]}'
 except KeyError:
     logger.info("No protein input")
@@ -121,11 +111,11 @@ rule braker3:
 # collect input
 rule reformat:
     input:
-        collect_input,
+        query_genome,
     output:
-        temp(Path(outdir, "{file}.fa")),
+        temp(Path(outdir, "genome.fa")),
     log:
-        Path(logdir, "reformat.{file}.log"),
+        Path(logdir, "reformat.log"),
     container:
         bbmap
     shell:
