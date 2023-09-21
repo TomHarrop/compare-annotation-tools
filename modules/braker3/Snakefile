@@ -39,10 +39,37 @@ benchdir = Path(logdir, "benchmarks")
 
 # catch input
 gm_licence = config["gm_license"]
-proteins = config["proteins"]
 query_genome = config["query_genome"]
-rnaseq = config["rnaseq"]
-species_name = config["species_name"]
+
+# optional input
+braker_dict = {"ref": Path(outdir, "000_reference-data", "genome.fa")}
+params_dict = {}
+
+try:
+    proteins = config["proteins"]
+    braker_dict["proteins"] =  Path(outdir, "000_reference-data", "proteins.fa")
+    params_dict["proteins"] = f'--prot_seq={braker_dict["proteins"]}'
+except KeyError:
+    logger.info("No protein input")
+    params_dict["proteins"] = ""
+
+try:
+    rnaseq = config["rnaseq"]
+    braker_dict["rnaseq"] = rnaseq
+    params_dict["rnaseq"] = f'--rnaseq={braker_dict["rnaseq"]}'
+except KeyError:
+    logger.info("No rnaseq input")
+    params_dict["rnaseq"] = ""
+
+try:
+    species_name = config["species_name"]
+    params_dict["species"] = f"--species={species_name}"
+except KeyError:
+    logger.info("Using default species name")
+    params_dict["species"] = ""
+
+print(braker_dict)
+print(params_dict)
 
 logger.info(f"Masking query_genome {query_genome}")
 
@@ -54,9 +81,7 @@ logger.info(f"Masking query_genome {query_genome}")
 # braker3
 rule braker3:
     input:
-        ref=Path(outdir, "000_reference-data", "genome.fa"),
-        proteins=Path(outdir, "000_reference-data", "proteins.fa"),
-        rnaseq=rnaseq,
+        **braker_dict
     output:
         expand(
             Path(outdir, "{outfile}"),
@@ -69,7 +94,7 @@ rule braker3:
         ),
     params:
         wd=Path(outdir),
-        species=species_name,
+        **params_dict
     log:
         Path(logdir, "braker3.log"),
     benchmark:
@@ -82,14 +107,14 @@ rule braker3:
         braker3
     shell:
         "braker.pl "
-        "--bam={input.rnaseq} "
         "--genome={input.ref} "
         "--gff3 "
-        "--prot_seq={input.proteins} "
         "--softmasking "
-        "--species={params.species} "
         "--threads {threads} "
         "--workingdir={params.wd} "
+        "{params.proteins} "
+        "{params.rnaseq} "
+        "{params.species} "
         "&> {log}"
 
 
