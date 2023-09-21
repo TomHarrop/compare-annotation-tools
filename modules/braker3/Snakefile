@@ -68,8 +68,8 @@ except KeyError:
     logger.info("Using default species name")
     params_dict["species"] = ""
 
-print(braker_dict)
-print(params_dict)
+logger.debug(braker_dict)
+logger.debug(params_dict)
 
 logger.info(f"Masking query_genome {query_genome}")
 
