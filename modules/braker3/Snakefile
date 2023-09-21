@@ -32,9 +32,9 @@ except KeyError as e:
     logger.warning("This probably won't work on a cluster!")
 
 # set up directories
-outdir = Path(config["outdir"] if "outdir" in config else ".")
-logger.debug(f"outdir: {outdir}")
-logdir = Path(outdir, "logs")
+my_outdir = Path(config["outdir"] if "outdir" in config else ".")
+logger.debug(f"outdir: {my_outdir}")
+logdir = Path(my_outdir, "logs")
 benchdir = Path(logdir, "benchmarks")
 
 # catch input
@@ -42,12 +42,12 @@ gm_licence = config["gm_license"]
 query_genome = config["query_genome"]
 
 # optional input
-braker_dict = {"ref": Path(outdir, "000_reference-data", "genome.fa")}
+braker_dict = {"ref": Path(my_outdir, "000_reference-data", "genome.fa")}
 params_dict = {}
 
 try:
     proteins = config["proteins"]
-    braker_dict["proteins"] =  Path(outdir, "000_reference-data", "proteins.fa")
+    braker_dict["proteins"] =  Path(my_outdir, "000_reference-data", "proteins.fa")
     params_dict["proteins"] = f'--prot_seq={braker_dict["proteins"]}'
 except KeyError:
     logger.info("No protein input")
@@ -84,7 +84,7 @@ rule braker3:
         **braker_dict
     output:
         expand(
-            Path(outdir, "{outfile}"),
+            Path(my_outdir, "{outfile}"),
             outfile=[
                 "braker.aa",
                 "braker.codingseq",
@@ -93,7 +93,7 @@ rule braker3:
             ],
         ),
     params:
-        wd=Path(outdir),
+        wd=Path(my_outdir),
         **params_dict
     log:
         Path(logdir, "braker3.log"),
@@ -123,7 +123,7 @@ rule reformat:
     input:
         collect_input,
     output:
-        temp(Path(outdir, "000_reference-data", "{file}.fa")),
+        temp(Path(my_outdir, "000_reference-data", "{file}.fa")),
     log:
         Path(logdir, "reformat.{file}.log"),
     container:
