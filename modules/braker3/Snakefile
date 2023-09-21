@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 
-import tempfile
 from snakemake.logging import logger
+
+
+def get_collect_input(wildcards):
+    if wildcards.type == "genome":
+        return query_genome
+    if wildcards.type == "proteins":
+        return proteins
+    else:
+        raise ValueError(f"wtf {wildcards.type}")
+
 
 ###########
 # GLOBALS #
@@ -11,16 +20,6 @@ from snakemake.logging import logger
 bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
 braker3 = "docker://teambraker/braker3:v.1.0.4"
 
-# set up a temporary directory for this run
-try:
-    run_tmpdir = config["run_tmpdir"]
-    logger.info(f"Caught run_tmpdir {run_tmpdir}")
-except KeyError as e:
-    logger.info(f"{e} not set in config")
-    run_tmpdir = tempfile.mkdtemp()
-    logger.info(f"Setting run_tmpdir to {run_tmpdir}")
-    logger.warning("This probably won't work on a cluster!")
-
 # set up directories
 outdir = Path(config["outdir"] if "outdir" in config else ".")
 logger.debug(f"outdir: {outdir}")
@@ -28,51 +27,49 @@ logdir = Path(outdir, "logs")
 benchdir = Path(logdir, "benchmarks")
 
 # catch input
-gm_licence = config["gm_license"]
 query_genome = config["query_genome"]
+logger.info(f"braker3: input genome {query_genome}")
 
 # optional input
 braker_dict = {"ref": Path(outdir, "genome.fa")}
-params_dict = {}
+params_dict = {"ref": f'--genome={Path(braker_dict["ref"]).resolve()}'}
 
 try:
     proteins = config["proteins"]
-    braker_dict["proteins"] =  proteins
-    params_dict["proteins"] = f'--prot_seq={braker_dict["proteins"]}'
+    braker_dict["proteins"] = Path(outdir, "proteins.fa")
+    params_dict[
+        "proteins"
+    ] = f'--prot_seq={Path(braker_dict["proteins"]).resolve()}'
 except KeyError:
-    logger.info("No protein input")
+    logger.info("braker3: no protein input")
     params_dict["proteins"] = ""
 
 try:
     rnaseq = config["rnaseq"]
     braker_dict["rnaseq"] = rnaseq
-    params_dict["rnaseq"] = f'--bam={braker_dict["rnaseq"]}'
+    params_dict["rnaseq"] = f'--bam={Path(braker_dict["rnaseq"]).resolve()}'
 except KeyError:
-    logger.info("No rnaseq input")
+    logger.info("braker3: no rnaseq input")
     params_dict["rnaseq"] = ""
 
 try:
     species_name = config["species_name"]
     params_dict["species"] = f"--species={species_name}"
 except KeyError:
-    logger.info("Using default species name")
+    logger.info("braker3: using default species name")
     params_dict["species"] = ""
 
 logger.debug(braker_dict)
 logger.debug(params_dict)
 
-logger.info(f"Masking query_genome {query_genome}")
 
 #########
 # RULES #
 #########
 
 
-# braker3
-rule braker3:
+rule target:
     input:
-        **braker_dict
-    output:
         expand(
             Path(outdir, "{outfile}"),
             outfile=[
@@ -82,26 +79,52 @@ rule braker3:
                 "hintsfile.gff",
             ],
         ),
+
+
+rule collect_output:
+    input:
+        Path(outdir, "braker", "{outfile}"),
+    output:
+        Path(outdir, "{outfile}"),
+    threads: 1
+    shell:
+        "mv {input} {output}"
+
+
+# braker3
+# n.b. you have to cd to wd, otherwise braker overwrites the input file
+rule braker3:
+    input:
+        **braker_dict,
+    output:
+        expand(
+            Path(outdir, "braker", "{outfile}"),
+            outfile=[
+                "braker.aa",
+                "braker.codingseq",
+                "braker.gff3",
+                "hintsfile.gff",
+            ],
+        ),
     params:
+        **params_dict,
         wd=Path(outdir),
-        **params_dict
     log:
-        Path(logdir, "braker3.log"),
+        Path(logdir, "braker3.log").resolve(),
     benchmark:
-        Path(benchdir, "braker3.txt")
-    threads: lambda wildcards, attempt: 10 * attempt
+        Path(benchdir, "braker3.txt").resolve()
+    threads: lambda wildcards, attempt: 20 * attempt
     resources:
-        time=lambda wildcards, attempt: 1440 * attempt,
-        mem_mb=lambda wildcards, attempt: 12e3 * attempt,
+        time=lambda wildcards, attempt: 10080 * attempt,
+        mem_mb=lambda wildcards, attempt: 24e3 * attempt,
     container:
         braker3
     shell:
+        "cd {params.wd} || exit 1 && "
         "braker.pl "
-        "--genome={input.ref} "
+        "{params.ref} "
         "--gff3 "
-        "--softmasking "
         "--threads {threads} "
-        "--workingdir={params.wd} "
         "{params.proteins} "
         "{params.rnaseq} "
         "{params.species} "
@@ -109,14 +132,25 @@ rule braker3:
 
 
 # collect input
+# n.b. whitespace in the header breaks braker
 rule reformat:
     input:
-        query_genome,
+        get_collect_input,
     output:
-        temp(Path(outdir, "genome.fa")),
+        temp(Path(outdir, "{type}.fa")),
+    params:
+        ignorejunk=lambda wildcards: "t"
+        if wildcards.type == "proteins"
+        else "f",
     log:
-        Path(logdir, "reformat.log"),
+        Path(logdir, "reformat.{type}.log"),
     container:
         bbmap
     shell:
-        "reformat.sh in={input} out={output} 2>{log}"
+        "reformat.sh "
+        "fixheaders=t "
+        "trimreaddescription=t "
+        "ignorejunk={params.ignorejunk} "
+        "in={input} "
+        "out={output} "
+        "2>{log}"
