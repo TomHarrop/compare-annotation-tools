@@ -20,9 +20,9 @@ def collect_input(wildcards):
 # containers
 bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
 braker3 = "docker://teambraker/braker3:v.1.0.4"
-seqkit = "docker://quay.io/biocontainers/seqkit:2.5.1--h9ee0642_0"
+eggnog = "docker://quay.io/biocontainers/eggnog-mapper:2.1.12--pyhdfd78af_0"
 funannotate = "docker://ghcr.io/tomharrop/container-funannotate:1.8.15_cv2"
-
+seqkit = "docker://quay.io/biocontainers/seqkit:2.5.1--h9ee0642_0"
 
 # this is the path to the included adaptors file in bbmap
 bbmap_adaptors = Path(
@@ -50,9 +50,11 @@ benchdir = Path(logdir, "benchmarks")
 query_genome = config["query_genome"]
 rnaseq = config["rnaseq"]
 species_name = config["species_name"]
+db_path = config["db_path"]
+dmnd_db = config["dmnd_db"]
+eggnog_db = config["eggnog_db"]
 
-
-logger.info(f"Masking query_genome {query_genome}")
+logger.info(f"Annotating query_genome {query_genome}")
 
 #########
 # RULES #
@@ -61,7 +63,112 @@ logger.info(f"Masking query_genome {query_genome}")
 
 rule target:
     input:
-        Path(outdir, "funannotate", "funannotate_train.transcripts.gff3"),
+        Path(
+            outdir,
+            "funannotate",
+            "predict_results",
+            f"{species_name}.gff3",
+        ),
+        Path(outdir, "eggnog", "eggnog.emapper.annotations")
+
+
+rule eggnog_mapper:
+    input:
+        proteins=Path(
+            outdir,
+            "funannotate",
+            "predict_results",
+            f"{species_name}.proteins.fa",
+        ),
+        dmnd_db=dmnd_db,
+        eggnog_db=eggnog_db,
+    output:
+        annotations=Path(outdir, "eggnog", "eggnog.emapper.annotations"),
+    params:
+        proteins=lambda wildcards, input: Path(input.proteins).resolve(),
+        wd=lambda wildcards, output: Path(output.annotations).parent.resolve(),
+        dmnd_db=lambda wildcards, input: Path(input.dmnd_db).resolve(),
+        db_path=lambda wildcards, input: Path(input.eggnog_db).parent.resolve(),
+    log:
+        Path(logdir, "eggnog_mapper.log").resolve(),
+    threads: workflow.cores
+    container:
+        eggnog
+    shell:
+        "cd {params.wd} || exit 1 ; "
+        "emapper.py "
+        "-m diamond "
+        "-i {params.proteins} "
+        "-o eggnog "
+        "--dmnd_db {params.dmnd_db} "
+        "--data_dir {params.db_path} "
+        "--cpu {threads} "
+        "&> {log}"
+
+
+# this doesn't work with containall, writable-tmps and cleanenv.
+rule funannotate_predict:
+    input:
+        Path(
+            outdir,
+            "funannotate",
+            "training",
+            "funannotate_train.transcripts.gff3",
+        ),
+        fasta=Path(run_tmpdir, "genome.fa"),
+        db=db_path,
+    output:
+        gff=Path(
+            outdir,
+            "funannotate",
+            "predict_results",
+            f"{species_name}.gff3",
+        ),
+        transcripts=Path(
+            outdir,
+            "funannotate",
+            "predict_results",
+            f"{species_name}.mrna-transcripts.fa",
+        ),
+        proteins=Path(
+            outdir,
+            "funannotate",
+            "predict_results",
+            f"{species_name}.proteins.fa",
+        ),
+    params:
+        fasta=lambda wildcards, input: Path(input.fasta).resolve(),
+        db=lambda wildcards, input: Path(input.db).resolve(),
+        wd=lambda wildcards, output: Path(output.gff).parent.parent.resolve(),
+        min_training_models=100,  # for test data
+    log:
+        Path(logdir, "funannotate_predict.log").resolve(),
+    threads: workflow.cores
+    container:
+        funannotate
+    shell:
+        # TODO: add EVM_HOME and AUGUSTUS_CONFIG_PATH to the docker container
+        # TODO: when do we use the following params?
+        # "--augustus_species lbonariensis "
+        # "--busco_seed_species tribolium2012 "
+        # "--busco_db endopterygota "
+        "cp /usr/local/opt/genemark/gm_key_64 ${{HOME}}/.gm_key ; "
+        "export EVM_HOME=/usr/local/opt/evidencemodeler-1.1.1 ; "
+        "funannotate predict "
+        "--EVM_HOME /usr/local/opt/evidencemodeler-1.1.1 "
+        "--AUGUSTUS_CONFIG_PATH /usr/local/config "
+        "--input {params.fasta} "
+        "--out {params.wd} "
+        f'--species "{species_name}" '
+        "--database {params.db} "
+        "--cpus {threads} "
+        "--optimize_augustus "
+        "--organism other "
+        "--repeats2evm "
+        "--max_intronlen 50000 "
+        "--min_training_models {params.min_training_models} "
+        "&> {log}"
+
 
 rule funannotate_train:
     input:
@@ -70,29 +177,33 @@ rule funannotate_train:
         right=Path(outdir, "reads", "reads.trimmed.r2.fq"),
         single=Path(outdir, "reads", "reads.trimmed.singletons.fq"),
     output:
-        gff=Path(outdir, "funannotate", "funannotate_train.transcripts.gff3"),
+        gff=Path(
+            outdir,
+            "funannotate",
+            "training",
+            "funannotate_train.transcripts.gff3",
+        ),
     params:
         fasta=lambda wildcards, input: Path(input.fasta).resolve(),
-        wd=lambda wildcards, output: Path(output.gff).parent.resolve(),
+        wd=lambda wildcards, output: Path(output.gff).parent.parent.resolve(),
     log:
         Path(logdir, "funannotate_train.log").resolve(),
     threads: workflow.cores
     container:
         funannotate
     shell:
+        # TODO: add PASAHOME and TRINITYHOME to the docker container
         "cp /usr/local/opt/genemark/gm_key_64 ${{HOME}}/.gm_key ; "
         "funannotate train "
-        # add these to the docker container
         "--PASAHOME /usr/local/opt/pasa-2.5.2 "
         "--TRINITYHOME /usr/local/opt/trinity-2.8.5 "
         "--input {params.fasta} "
         "--out {params.wd} "
         "--left {input.left} "
         "--right {input.right} "
-        # "--single {input.single} "
         "--stranded RF "
         "--max_intronlen 10000 "
-        f"--species {species_name} "
+        f'--species "{species_name}" '
         "--cpus {threads} "
         " &> {log}"
 
