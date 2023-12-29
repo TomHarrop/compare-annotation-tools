@@ -191,7 +191,7 @@ if use_rnaseq:
         container:
             samtools
         shell:
-            "samtools view -f4 -c {input} > {output} 2> {log}"
+            "samtools view -F4 -c {input} > {output} 2> {log}"
 
 
 # n.b. whitespace in the header breaks braker
