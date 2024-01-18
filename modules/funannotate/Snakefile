@@ -52,11 +52,13 @@ benchdir = Path(logdir, "benchmarks")
 # catch input
 # proteins = config["proteins"]
 query_genome = config["query_genome"]
-rnaseq = config["rnaseq"]
+rnaseq_r1 = config["rnaseq_r1"]
+rnaseq_r2 = config["rnaseq_r2"]
 species_name = config["species_name"]
 db_path = config["db_path"]
 dmnd_db = config["dmnd_db"]
 eggnog_db = config["eggnog_db"]
+
 
 logger.info(f"Annotating query_genome {query_genome}")
 
@@ -77,6 +79,10 @@ rule target:
         Path(outdir, "interproscan", f"{species_name}.proteins.fa.xml"),
 
 
+# currently not working. need to download the interproscan DB and add
+# instructions to test-data/funannotate/README.md. Then need to pass that from
+# the test-workflow to this module. Then need to use the db in this rule by
+# passing it to set_up_interproscan.sh. set_up_interproscan.sh is not finished.
 rule interproscan:
     input:
         proteins=Path(
@@ -141,7 +147,7 @@ rule eggnog_mapper:
 
 
 # this doesn't work with containall, writable-tmps and cleanenv.
-rule funannotate_predict:
+rule predict:
     input:
         Path(
             outdir,
@@ -204,12 +210,11 @@ rule funannotate_predict:
         "&> {log}"
 
 
-rule funannotate_train:
+rule train:
     input:
         fasta=Path(run_tmpdir, "genome.fa"),
-        left=Path(outdir, "reads", "reads.trimmed.r1.fq"),
-        right=Path(outdir, "reads", "reads.trimmed.r2.fq"),
-        single=Path(outdir, "reads", "reads.trimmed.singletons.fq"),
+        left=rnaseq_r1,
+        right=rnaseq_r2,
     output:
         gff=Path(
             outdir,
@@ -240,136 +245,6 @@ rule funannotate_train:
         f'--species "{species_name}" '
         "--cpus {threads} "
         " &> {log}"
-
-
-# collect input
-rule split:
-    input:
-        Path(run_tmpdir, "reads.trimmed.paired.fq"),
-    output:
-        r1=Path(outdir, "reads", "reads.trimmed.r1.fq"),
-        r2=Path(outdir, "reads", "reads.trimmed.r2.fq"),
-    log:
-        Path(logdir, "split.log"),
-    threads: 1
-    resources:
-        time=lambda wildcards, attempt: 10 * attempt,
-        mem_mb=lambda wildcards, attempt: 2e3 * attempt,
-    container:
-        bbmap
-    shell:
-        "reformat.sh "
-        "-Xmx{resources.mem_mb}m "
-        "-Xms100m "
-        "in=stdin.fastq "
-        "int=t "
-        "addcolon=t "
-        "out={output.r1} "
-        "out2={output.r2} "
-        "< {input} "
-        "2> {log}"
-
-
-rule collect_singles:
-    input:
-        Path(run_tmpdir, "reads.trimmed.unpaired.fq"),
-    output:
-        Path(outdir, "reads", "reads.trimmed.singletons.fq"),
-    threads: 1
-    shell:
-        "cat <{input} >{output}"
-
-
-rule trim:
-    input:
-        reads=Path(run_tmpdir, "reads.{type}.fq"),
-    output:
-        pipe=pipe(Path(run_tmpdir, "reads.trimmed.{type}.fq")),
-    params:
-        interleaved=lambda wildcards: "t"
-        if wildcards.type == "paired"
-        else "f",
-        adaptors=bbmap_adaptors,
-    log:
-        log=Path(logdir, "trim.{type}.log"),
-        stats=Path(logdir, "trim.{type}.stats.txt"),
-    threads: 2
-    resources:
-        time=lambda wildcards, attempt: 10 * attempt,
-        mem_mb=lambda wildcards, attempt: 2e3 * attempt,
-    container:
-        bbmap
-    shell:
-        "bbduk.sh "
-        "-Xmx{resources.mem_mb}m "
-        "-Xms100m "
-        "threads={threads} "
-        "in={input.reads} "
-        "int={params.interleaved} "
-        "out=stdout.fastq "
-        "outs=/dev/null "
-        "ref={params.adaptors} "
-        "ktrim=r k=23 mink=11 hdist=1 tpe tbo "
-        "forcetrimmod=5 "
-        "stats={log.stats} "
-        ">> {output.pipe} "
-        "2> {log.log} "
-
-
-rule repair:
-    input:
-        Path(run_tmpdir, "reads.fq"),
-    output:
-        out=pipe(Path(run_tmpdir, "reads.paired.fq")),
-        outs=temp(Path(run_tmpdir, "reads.unpaired.fq")),
-    log:
-        Path(logdir, "repair.log"),
-    threads: 1
-    resources:
-        time=lambda wildcards, attempt: 10 * attempt,
-        mem_mb=lambda wildcards, attempt: 4e3 * attempt,
-    container:
-        bbmap
-    shell:
-        "repair.sh "
-        "-Xmx{resources.mem_mb}m "
-        "-Xms100m "
-        "in=stdin.fastq "
-        "int=t "
-        "out=stdout.fastq "
-        "outs={output.outs} "
-        "repair=t "
-        "tossbrokenreads=t "
-        "tossjunk=t "
-        "< {input} "
-        ">> {output.out} "
-        "2> {log}"
-
-
-rule bam2fastq:
-    input:
-        rnaseq,
-    output:
-        pipe=pipe(Path(run_tmpdir, "reads.fq")),
-    log:
-        Path(logdir, "bam2fastq.log"),
-    threads: 1
-    resources:
-        time=lambda wildcards, attempt: 10 * attempt,
-        mem_mb=lambda wildcards, attempt: 4e3 * attempt,
-    container:
-        bbmap
-    shell:
-        "reformat.sh "
-        "-Xmx{resources.mem_mb}m "
-        "-Xms100m "
-        "in={input} "
-        "out=stdout.fq "
-        "trimrname=t "
-        "tossjunk=t "
-        "primaryonly=t "
-        ">> {output.pipe} "
-        "2> {log}"
 
 
 rule reformat:
