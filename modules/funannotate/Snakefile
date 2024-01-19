@@ -72,11 +72,59 @@ rule target:
         Path(
             outdir,
             "funannotate",
+            "annotate_results",
+            f"{species_name}.annotations.txt",
+        ),
+
+
+rule annotate:
+    input:
+        gff=Path(
+            outdir,
+            "funannotate",
             "predict_results",
             f"{species_name}.gff3",
         ),
-        Path(outdir, "eggnog", "eggnog.emapper.annotations"),
-        Path(outdir, "interproscan", f"{species_name}.proteins.fa.xml"),
+        # ipr=Path(outdir, "interproscan", f"{species_name}.proteins.fa.xml"),
+        eggnog=Path(outdir, "eggnog", "eggnog.emapper.annotations"),
+        db=db_path,
+    output:
+        annotations=Path(
+            outdir,
+            "funannotate",
+            "annotate_results",
+            f"{species_name}.annotations.txt",
+        ),
+        transcripts=Path(
+            outdir,
+            "funannotate",
+            "annotate_results",
+            f"{species_name}.mrna-transcripts.fa",
+        ),
+    params:
+        indir=lambda wildcards, input: Path(input.gff).parent.resolve(),
+        # ipr=lambda wildcards, input: Path(input.ipr).resolve(),
+        eggnog=lambda wildcards, input: Path(input.eggnog).resolve(),
+        db=lambda wildcards, input: Path(input.db).resolve(),
+        wd=lambda wildcards, output: Path(
+            output.annotations
+        ).parent.parent.resolve(),
+    log:
+        Path(logdir, "funannotate_annotate.log").resolve(),
+    threads: workflow.cores
+    container:
+        funannotate
+    shell:
+        "export AUGUSTUS_CONFIG_PATH=/usr/local/config ; "
+        "funannotate annotate "
+        "--input {params.indir} "
+        "--eggnog {params.eggnog} "
+        # "--iprscan {params.ipr} "
+        "--out {params.wd} "
+        f'--species "{species_name}" '
+        "--database {params.db} "
+        "--cpus {threads} "
+        "&> {log}"
 
 
 # currently not working. need to download the interproscan DB and add
