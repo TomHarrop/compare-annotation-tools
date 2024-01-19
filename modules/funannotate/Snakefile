@@ -61,6 +61,9 @@ eggnog_db = config["eggnog_db"]
 
 
 logger.info(f"Annotating query_genome {query_genome}")
+logger.warning(
+    "################################################\n# Interproscan analysis is not implemented yet #\n################################################"
+)
 
 #########
 # RULES #
@@ -119,18 +122,19 @@ rule annotate:
         "funannotate annotate "
         "--input {params.indir} "
         "--eggnog {params.eggnog} "
-        # "--iprscan {params.ipr} "
         "--out {params.wd} "
         f'--species "{species_name}" '
         "--database {params.db} "
         "--cpus {threads} "
         "&> {log}"
+        # "--iprscan {params.ipr} "
 
 
-# currently not working. need to download the interproscan DB and add
-# instructions to test-data/funannotate/README.md. Then need to pass that from
-# the test-workflow to this module. Then need to use the db in this rule by
-# passing it to set_up_interproscan.sh. set_up_interproscan.sh is not finished.
+# Currently not working. Even after manually downloading the data and running
+# hmmpress (test-data/funannotate/README.md), interproscan.sh thrown Java
+# exceptions and exits. A container with a prepared DB needs to be hosted
+# somewhere. A draft for passing the DB to interproscan.sh is in
+# modules/funannotate/scripts/set_up_interproscan.sh.
 rule interproscan:
     input:
         proteins=Path(
