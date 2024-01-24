@@ -36,7 +36,7 @@ Re-run the module without the bamfile.
 
 # containers
 bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
-braker3 = "docker://teambraker/braker3:v1.0.6"
+braker3 = "docker://teambraker/braker3:v3.0.7.1"
 samtools = "docker://quay.io/biocontainers/samtools:1.18--h50ea8bc_1"
 
 # set up directories
