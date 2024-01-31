@@ -178,8 +178,6 @@ rule annotate:
 
 # The interproscan rule works, but the container is 18 GB so it can't be hosted
 # anywhere.
-# TODO: make the container location an input to the workflow. If it's not
-# provided, skip interproscan.
 rule interproscan:
     input:
         proteins=Path(
