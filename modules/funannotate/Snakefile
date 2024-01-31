@@ -23,12 +23,7 @@ bbmap = "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
 braker3 = "docker://teambraker/braker3:v.1.0.4"
 eggnog = "docker://quay.io/biocontainers/eggnog-mapper:2.1.12--pyhdfd78af_0"
 funannotate = "docker://ghcr.io/tomharrop/container-funannotate:1.8.15_cv4"
-# interproscan = (
-#     "docker://quay.io/biocontainers/interproscan:5.59_91.0--hec16e2b_1"
-# )
-interproscan = Path("interproscan.sif").resolve().as_posix()
 seqkit = "docker://quay.io/biocontainers/seqkit:2.5.1--h9ee0642_0"
-
 
 # this is the path to the included adaptors file in bbmap
 bbmap_adaptors = Path(
@@ -52,7 +47,6 @@ logdir = Path(outdir, "logs")
 benchdir = Path(logdir, "benchmarks")
 
 # catch input
-# proteins = config["proteins"]
 query_genome = config["query_genome"]
 rnaseq_r1 = config["rnaseq_r1"]
 rnaseq_r2 = config["rnaseq_r2"]
@@ -61,19 +55,69 @@ db_path = config["db_path"]
 dmnd_db = config["dmnd_db"]
 eggnog_db = config["eggnog_db"]
 
+# deal with the genemark key
+gm_key = {}
+try:
+    gm_key["gm_key"] = Path(config["gm_key"].resolve().as_posix())
+except KeyError as e:
+    logger.warning(
+        """
+#########################################################
+# Provide your genemark key with the gm_key config key. #
+#########################################################
+"""
+    )
+    # there's a key here in the container, but it will expire
+    gm_key["gm_key"] = "/usr/local/opt/genemark/gm_key_64"
+
+
+# decide if we're running interproscan
+annotate_input = {
+    "gff": Path(
+        outdir,
+        "funannotate",
+        "predict_results",
+        f"{species_name}.gff3",
+    ),
+    "eggnog": Path(outdir, "eggnog", "eggnog.emapper.annotations"),
+    "db": db_path,
+}
+interproscan = None
+ipr_param = {"ipr": ""}
+
+try:
+    interproscan_container = config["interproscan_container"]
+    if interproscan_container is False:
+        logger.warning(
+            """
+#########################
+# Interproscan disabled #
+#########################
+"""
+        )
+    else:
+        annotate_input["ipr"] = Path(
+            outdir, "interproscan", f"{species_name}.proteins.fa.xml"
+        )
+        interproscan = (
+            Path(config["interproscan_container"]).resolve().as_posix()
+        )
+        ipr_param["ipr"] = f'--iprscan {Path(annotate_input["ipr"]).resolve()}'
+except KeyError as e:
+    logger.error(
+        """
+################################################################################
+No interproscan container was provided. Because the container is approximately
+14 GB with all the required databases, it's not hosted anywhere. Provide the
+path or URL to the container with the interproscan_container config key.
+
+If you want to disable interproscan, set interproscan_container to False.
+################################################################################
+        """
+    )
+    raise e
 
 logger.info(f"Annotating query_genome {query_genome}")
-
-# FIXME - handle this in the module
-logger.warning(
-    "######################################################\n# Bind your key to /usr/local/opt/genemark/gm_key_64 #\n######################################################"
-)
-
-
-logger.warning(
-    "################################################\n# Interproscan analysis is not implemented yet #\n################################################"
-)
-
 
 #########
 # RULES #
@@ -92,15 +136,7 @@ rule target:
 
 rule annotate:
     input:
-        gff=Path(
-            outdir,
-            "funannotate",
-            "predict_results",
-            f"{species_name}.gff3",
-        ),
-        ipr=Path(outdir, "interproscan", f"{species_name}.proteins.fa.xml"),
-        eggnog=Path(outdir, "eggnog", "eggnog.emapper.annotations"),
-        db=db_path,
+        **annotate_input,
     output:
         annotations=Path(
             outdir,
@@ -115,8 +151,8 @@ rule annotate:
             f"{species_name}.mrna-transcripts.fa",
         ),
     params:
+        **ipr_param,
         indir=lambda wildcards, input: Path(input.gff).parent.resolve(),
-        ipr=lambda wildcards, input: Path(input.ipr).resolve(),
         eggnog=lambda wildcards, input: Path(input.eggnog).resolve(),
         db=lambda wildcards, input: Path(input.db).resolve(),
         wd=lambda wildcards, output: Path(
@@ -131,14 +167,13 @@ rule annotate:
         "export FUNANNOTATE_DB={params.db} ; "
         "funannotate annotate "
         "--input {params.indir} "
-        "--iprscan {params.ipr} "
+        "{params.ipr} "
         "--eggnog {params.eggnog} "
         "--out {params.wd} "
         f'--species "{species_name}" '
         "--database {params.db} "
         "--cpus {threads} "
         "&> {log}"
-
 
 
 # The interproscan rule works, but the container is 18 GB so it can't be hosted
@@ -219,6 +254,7 @@ rule predict:
         ),
         fasta=Path(run_tmpdir, "genome.fa"),
         db=db_path,
+        gm_key=Path(run_tmpdir, "gm_key"),
     output:
         gff=Path(
             outdir,
@@ -253,7 +289,7 @@ rule predict:
         # "--augustus_species lbonariensis "
         # "--busco_seed_species tribolium2012 "
         # "--busco_db endopterygota "
-        "cp /usr/local/opt/genemark/gm_key_64 ${{HOME}}/.gm_key ; "
+        "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "
         "--input {params.fasta} "
         "--out {params.wd} "
@@ -270,9 +306,11 @@ rule predict:
 
 rule train:
     input:
+        Path(run_tmpdir, "gm_key"),
         fasta=Path(run_tmpdir, "genome.fa"),
         left=rnaseq_r1,
         right=rnaseq_r2,
+        gm_key=Path(run_tmpdir, "gm_key"),
     output:
         gff=Path(
             outdir,
@@ -289,7 +327,7 @@ rule train:
     container:
         funannotate
     shell:
-        "cp /usr/local/opt/genemark/gm_key_64 ${{HOME}}/.gm_key ; "
+        "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate train "
         "--input {params.fasta} "
         "--out {params.wd} "
@@ -313,3 +351,14 @@ rule reformat:
         bbmap
     shell:
         "reformat.sh in={input} out={output} 2>{log}"
+
+
+rule collect_key:
+    output:
+        temporary(Path(run_tmpdir, "gm_key")),
+    params:
+        **gm_key,
+    container:
+        funannotate
+    shell:
+        "cp {params.gm_key} {output}"
