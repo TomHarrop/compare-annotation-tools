@@ -62,6 +62,7 @@ predict_params = {
     "protein_evidence": "",
     "transcript_evidence": "",
 }
+header_length = 16  # default
 
 # params
 try:
@@ -70,6 +71,12 @@ except KeyError as e:
     logger.info(
         f'min_training_models not given, using {predict_params["min_training_models"]}'
     )
+
+try:
+    header_length = config["header_length"]
+except KeyError as e:
+    logger.info(f"header_length not given, using {header_length}")
+
 
 # do we have RNAseq?
 use_rnaseq = False
@@ -232,6 +239,7 @@ rule annotate:
         "--eggnog {params.eggnog} "
         "--out {params.wd} "
         f'--species "{species_name}" '
+        f"--header_length {header_length} "
         "--database {params.db} "
         "--cpus {threads} "
         "&> {log}"
@@ -347,6 +355,7 @@ rule predict:
         f'--species "{species_name}" '
         f'--busco_seed_species "{busco_seed_species}" '
         f"--busco_db {busco_db} "
+        f"--header_length {header_length} "
         "--database {params.db} "
         "--cpus {threads} "
         "--optimize_augustus "
@@ -395,6 +404,7 @@ if use_rnaseq:
             "--stranded RF "
             "--max_intronlen 10000 "
             f'--species "{species_name}" '
+            f"--header_length {header_length} "
             "--cpus {threads} "
             " &> {log}"
 
