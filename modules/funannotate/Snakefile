@@ -48,12 +48,71 @@ benchdir = Path(logdir, "benchmarks")
 
 # catch input
 query_genome = config["query_genome"]
-rnaseq_r1 = config["rnaseq_r1"]
-rnaseq_r2 = config["rnaseq_r2"]
 species_name = config["species_name"]
 db_path = config["db_path"]
 dmnd_db = config["dmnd_db"]
 eggnog_db = config["eggnog_db"]
+busco_seed_species = config["busco_seed_species"]
+busco_db = config["busco_db"]
+
+# optional inputs
+predict_evidence = {}
+predict_params = {
+    "min_training_models": 200,  # default
+    "protein_evidence": "",
+    "transcript_evidence": "",
+}
+
+# params
+try:
+    predict_params["min_training_models"] = config["min_training_models"]
+except KeyError as e:
+    logger.info(f'min_training_models not given, using {predict_params["min_training_models"]}')
+
+# do we have RNAseq?
+use_rnaseq = False
+try:
+    rnaseq_r1 = config["rnaseq_r1"]
+    rnaseq_r2 = config["rnaseq_r2"]
+    use_rnaseq = True
+    predict_evidence["rnaseq"] = Path(
+        outdir,
+        "funannotate",
+        "training",
+        "funannotate_train.transcripts.gff3",
+    )
+except KeyError as e:
+    logger.warning(
+        """
+###############################################
+# No RNA-seq data. Skipping funannotate train #
+###############################################
+"""
+    )
+
+
+# do we have transcript / protein evidence?
+try:
+    protein_evidence = config["protein_evidence"]
+    predict_evidence["protein_evidence"] = Path(
+        protein_evidence.resolve().as_posix()
+    )
+    predict_params[
+        "protein_evidence"
+    ] = f'--protein_evidence {predict_evidence["protein_evidence"]} '
+except KeyError as e:
+    logger.info("No protein evidence provided, skipping")
+
+try:
+    transcript_evidence = config["transcript_evidence"]
+    predict_evidence["transcript_evidence"] = Path(
+        transcript_evidence.resolve().as_posix()
+    )
+    predict_params[
+        "transcript_evidence"
+    ] = f'--transcript_evidence {predict_evidence["transcript_evidence"]} '
+except KeyError as e:
+    logger.info("No transcript evidence provided, skipping")
 
 # deal with the genemark key
 gm_key = {}
@@ -244,12 +303,7 @@ rule eggnog_mapper:
 # this doesn't work with containall, writable-tmps and cleanenv.
 rule predict:
     input:
-        Path(
-            outdir,
-            "funannotate",
-            "training",
-            "funannotate_train.transcripts.gff3",
-        ),
+        **predict_evidence,
         fasta=Path(run_tmpdir, "genome.fa"),
         db=db_path,
         gm_key=Path(run_tmpdir, "gm_key"),
@@ -273,25 +327,24 @@ rule predict:
             f"{species_name}.proteins.fa",
         ),
     params:
+        **predict_params,
         fasta=lambda wildcards, input: Path(input.fasta).resolve(),
         db=lambda wildcards, input: Path(input.db).resolve(),
         wd=lambda wildcards, output: Path(output.gff).parent.parent.resolve(),
-        min_training_models=100,  # for test data
     log:
         Path(logdir, "funannotate_predict.log").resolve(),
     threads: workflow.cores
     container:
         funannotate
     shell:
-        # TODO: when do we use the following params?
-        # "--augustus_species lbonariensis "
-        # "--busco_seed_species tribolium2012 "
-        # "--busco_db endopterygota "
+        "export FUNANNOTATE_DB={params.db} ; "
         "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "
         "--input {params.fasta} "
         "--out {params.wd} "
         f'--species "{species_name}" '
+        f'--busco_seed_species "{busco_seed_species}" '
+        f"--busco_db {busco_db} "
         "--database {params.db} "
         "--cpus {threads} "
         "--optimize_augustus "
@@ -299,43 +352,49 @@ rule predict:
         "--repeats2evm "
         "--max_intronlen 50000 "
         "--min_training_models {params.min_training_models} "
+        "{params.protein_evidence} "
+        "{params.transcript_evidence} "
         "&> {log}"
 
 
-rule train:
-    input:
-        Path(run_tmpdir, "gm_key"),
-        fasta=Path(run_tmpdir, "genome.fa"),
-        left=rnaseq_r1,
-        right=rnaseq_r2,
-        gm_key=Path(run_tmpdir, "gm_key"),
-    output:
-        gff=Path(
-            outdir,
-            "funannotate",
-            "training",
-            "funannotate_train.transcripts.gff3",
-        ),
-    params:
-        fasta=lambda wildcards, input: Path(input.fasta).resolve(),
-        wd=lambda wildcards, output: Path(output.gff).parent.parent.resolve(),
-    log:
-        Path(logdir, "funannotate_train.log").resolve(),
-    threads: workflow.cores
-    container:
-        funannotate
-    shell:
-        "cp {input.gm_key} ${{HOME}}/.gm_key ; "
-        "funannotate train "
-        "--input {params.fasta} "
-        "--out {params.wd} "
-        "--left {input.left} "
-        "--right {input.right} "
-        "--stranded RF "
-        "--max_intronlen 10000 "
-        f'--species "{species_name}" '
-        "--cpus {threads} "
-        " &> {log}"
+if use_rnaseq:
+
+    rule train:
+        input:
+            Path(run_tmpdir, "gm_key"),
+            fasta=Path(run_tmpdir, "genome.fa"),
+            left=rnaseq_r1,
+            right=rnaseq_r2,
+            gm_key=Path(run_tmpdir, "gm_key"),
+        output:
+            gff=Path(
+                outdir,
+                "funannotate",
+                "training",
+                "funannotate_train.transcripts.gff3",
+            ),
+        params:
+            fasta=lambda wildcards, input: Path(input.fasta).resolve(),
+            wd=lambda wildcards, output: Path(
+                output.gff
+            ).parent.parent.resolve(),
+        log:
+            Path(logdir, "funannotate_train.log").resolve(),
+        threads: workflow.cores
+        container:
+            funannotate
+        shell:
+            "cp {input.gm_key} ${{HOME}}/.gm_key ; "
+            "funannotate train "
+            "--input {params.fasta} "
+            "--out {params.wd} "
+            "--left {input.left} "
+            "--right {input.right} "
+            "--stranded RF "
+            "--max_intronlen 10000 "
+            f'--species "{species_name}" '
+            "--cpus {threads} "
+            " &> {log}"
 
 
 rule reformat:
