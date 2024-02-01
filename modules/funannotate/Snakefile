@@ -67,7 +67,9 @@ predict_params = {
 try:
     predict_params["min_training_models"] = config["min_training_models"]
 except KeyError as e:
-    logger.info(f'min_training_models not given, using {predict_params["min_training_models"]}')
+    logger.info(
+        f'min_training_models not given, using {predict_params["min_training_models"]}'
+    )
 
 # do we have RNAseq?
 use_rnaseq = False
