@@ -79,6 +79,15 @@ try:
 except KeyError:
     logger.info("braker3: no rnaseq input")
 
+# check for reference annotation
+params_dict["reference_annotation"] = ""
+try:
+    reference_annotation=config["reference_annotation"]
+    braker_dict["reference_annotation"] = reference_annotation
+    params_dict["reference_annotation"] = f'--eval={Path(reference_annotation).resolve()}'
+except KeyError as e:
+    logger.info("braker3: no reference annotation, skipping evaluation")
+
 
 # check for a user-defined species name
 params_dict["species"] = ""
@@ -91,10 +100,11 @@ except KeyError:
 logger.debug(braker_dict)
 logger.debug(params_dict)
 
-outfiles = [
+braker_outfiles = [
     "braker.aa",
     "braker.codingseq",
     "braker.gff3",
+    "braker.gtf",
     "hintsfile.gff",
 ]
 
@@ -105,14 +115,14 @@ outfiles = [
 
 
 wildcard_constraints:
-    outfile="|".join([re.escape(x) for x in outfiles]),
+    outfile="|".join([re.escape(x) for x in braker_outfiles]),
 
 
 rule target:
     input:
         expand(
             Path(outdir, "{outfile}"),
-            outfile=outfiles,
+            outfile=braker_outfiles,
         ),
 
 
@@ -134,12 +144,7 @@ rule braker3:
     output:
         expand(
             Path(outdir, "braker", "{outfile}"),
-            outfile=[
-                "braker.aa",
-                "braker.codingseq",
-                "braker.gff3",
-                "hintsfile.gff",
-            ],
+            outfile=braker_outfiles,
         ),
     params:
         **params_dict,
@@ -163,6 +168,7 @@ rule braker3:
         "{params.proteins} "
         "{params.rnaseq} "
         "{params.species} "
+        "{params.reference_annotation} "
         "&> {log}"
 
 
