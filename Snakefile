@@ -33,7 +33,7 @@ rule compress_tiberius_output:
         mem="4G",
         runtime=20,
         gpu=1,
-        partitionFlag="--partition=gpu-a100",
+        partitionFlag="--partition=gpu-h100",
     log:
         "logs/tiberius/compressed_results/{genome}.log",
     container:
@@ -50,12 +50,12 @@ rule tiberius:
         gtf="results/tiberius/{genome}.gtf",
     params:
         #seq_len=259992,
-        batch_size=16,
+        batch_size=8,
     resources:
-        mem="256G",
+        mem="512G",
         runtime=240,
         gpu=1,
-        partitionFlag="--partition=gpu-a100-short",
+        partitionFlag="--partition=gpu-h100",
         exclusive="--exclusive",
     log:
         "logs/tiberius/{genome}.log",
@@ -70,6 +70,7 @@ rule tiberius:
         # "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/tiberius_weights_v2.tar.gz"
         # Find the weights URL in the config and download it manually. This
         # needs to be checked for the dev container.
+        "nvidia-smi && "
         "tiberius.py "
         "--genome {input.fasta} "
         "--model {input.model} "
