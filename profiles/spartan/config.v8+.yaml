@@ -17,7 +17,7 @@ default-resources:
   - partitionFlag=""
   - exclusive=""
   - mem_mb=4000
-  - time=5
+  - runtime=5
   - proj=punim1712
   - gpu=0
 restart-times: 0
