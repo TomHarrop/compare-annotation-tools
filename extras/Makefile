@@ -4,4 +4,5 @@ test:
 	snakemake \
 		--profile profiles/local \
 		--configfile config/test.yaml \
-		-k 
+		--keep-going \
+		results/test_genome_with_rnaseq/braker3

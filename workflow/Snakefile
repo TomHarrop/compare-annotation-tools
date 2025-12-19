@@ -21,16 +21,24 @@ wildcard_constraints:
     tool="|".join(all_tools),
 
 
+# order is important, e.g. utils has functions needed by braker3
 include: "rules/utils.smk"
-include: "rules/braker3.smk"
 include: "rules/collect_rnaseq_data.smk"
+include: "rules/braker3.smk"
 
 
 rule generate_target_file:
     input:
         get_tool_result_files,
     output:
-        directory(Path("results", "{genome}", "{tool}")),
+        outdir=directory(Path("results", "{genome}", "{tool}")),
+    params:
+        directories=lambda wildcards, input: sorted(
+            set(subpath(x, parent=True) for x in input)
+        ),
+        outdir=subpath(output.outdir, parent=True),
+    shell:
+        "cp -r {params.directories} {params.outdir}/"
 
 
 rule target:
