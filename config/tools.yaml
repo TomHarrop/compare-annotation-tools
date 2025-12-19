@@ -1,0 +1,9 @@
+tools:
+  braker3:
+    container: "docker://teambraker/braker3:v3.0.7.1"
+    result_files:
+      - "braker3.gff3"
+      - "braker3.gtf"
+utils:
+  bbmap: "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
+  samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"

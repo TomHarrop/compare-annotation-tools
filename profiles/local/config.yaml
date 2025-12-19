@@ -1,0 +1,15 @@
+---
+printshellcmds: true
+cores: 15
+rerun-triggers:
+  - mtime
+# need to set TMPDIR if we're using cleanenv
+singularity-args: "\
+  -B $PWD,/tmp \
+  -H $(mktemp -d) \
+  --pwd $PWD \
+  --env TMPDIR=/tmp \
+  --env LC_ALL=C \
+  --containall --cleanenv --writable-tmpfs"
+use-singularity: true
+use-conda: False

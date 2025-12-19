@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+from snakemake.logging import logger
+
+
+# tool config (different to run config)
+configfile: "config/tools.yaml"
+
+
+genomes_dict = config["genomes"]
+tools_dict = config["tools"]
+utils = config["utils"]
+
+all_genomes = sorted(set(genomes_dict.keys()))
+all_tools = sorted(set(tools_dict.keys()))
+
+
+wildcard_constraints:
+    genome="|".join(all_genomes),
+    tool="|".join(all_tools),
+
+
+include: "rules/utils.smk"
+include: "rules/braker3.smk"
+include: "rules/collect_rnaseq_data.smk"
+
+
+rule generate_target_file:
+    input:
+        get_tool_result_files,
+    output:
+        directory(Path("results", "{genome}", "{tool}")),
+
+
+rule target:
+    default_target: True
+    input:
+        expand(
+            Path("results", "{genome}", "{tool}"), genome=all_genomes, tool=all_tools
+        ),
