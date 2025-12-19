@@ -8,7 +8,7 @@ def annotation_tool_input_dict(wildcards):
             "results", "run", wildcards.genome, "rnaseq_reads_ok"
         )
     except KeyError:
-        print(f"No rnaseq for {wildcards.genome}")
+        logger.info(f"No rnaseq for {wildcards.genome}")
 
     return input_dict
 
