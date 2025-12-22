@@ -19,7 +19,6 @@ rule tiberius:
     benchmark:
         Path("logs", "{genome}", "tiberius", "tiberius.stats")
     resources:
-        mem="512G",
         runtime=240,
         gpu=1,
         partitionFlag="--partition=gpu-h100",

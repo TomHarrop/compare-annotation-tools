@@ -7,7 +7,7 @@ def select_taxid(wildcards):
 
 def select_busco_lineage(wildcards):
     busco_lineage = genomes_dict[wildcards.genome]["busco_lineage"]
-    return ancient(Path("resources", "busco_databases", busco_lineage))
+    return Path("resources", "busco_databases", busco_lineage)
 
 
 include: "./download_busco_dataset.smk"

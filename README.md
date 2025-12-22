@@ -28,6 +28,8 @@ snakemake \
 ## TODO
 
 - [ ] handle remote genomes
+- [ ] GPU resources - fill in the partitionflag and exclusive using yte
+- [ ] collect stats
 - [ ] implement annotation tools:
   - [ ] tiberius
     - [ ] add all the models

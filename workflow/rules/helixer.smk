@@ -19,6 +19,11 @@ rule helixer:
         Path("logs", "{genome}", "helixer", "helixer.log"),
     benchmark:
         Path("logs", "{genome}", "helixer", "helixer.stats")
+    resources:
+        runtime=240,
+        gpu=1,
+        partitionFlag="--partition=gpu-h100",
+        exclusive="--exclusive",
     container:
         tools_dict["helixer"]["container"]
     shell:
