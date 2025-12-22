@@ -4,6 +4,26 @@ tools:
     result_files:
       - "braker.gff3"
       - "braker.gtf"
+  tiberius:
+    container: "docker://larsgabriel23/tiberius@sha256:c35ac0b456ee95df521e19abb062329fc8e39997723196172e10ae2c345f41e3"
+    result_files:
+      - "tiberius.gtf"
 utils:
   bbmap: "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
   samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"
+
+qc:
+  annooddities:
+    container: "docker://gemygk/annooddities:v0.1.0"
+    result_files:
+      - "AnnoOddities.tar.gz"
+      - "AnnoOddities.gff"
+      - "AnnoOddities.combined_statistics.json"
+      - "AnnoOddities.oddity_summary.txt"
+  atol_qc_annotation:
+    container: "docker://quay.io/biocontainers/atol-qc-annotation:0.1.4--pyhdfd78af_0"
+    result_files:
+      - "omark_summary.json"
+      - "proteins.faa"
+      - "short_summary.specific.busco.json"
+      - "short_summary.specific.busco.txt"

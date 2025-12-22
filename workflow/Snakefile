@@ -8,42 +8,24 @@ from snakemake.logging import logger
 configfile: "config/tools.yaml"
 
 
-genomes_dict = config["genomes"]
-tools_dict = config["tools"]
-utils = config["utils"]
-
-all_genomes = sorted(set(genomes_dict.keys()))
-all_tools = sorted(set(tools_dict.keys()))
-
-
-wildcard_constraints:
-    genome="|".join(all_genomes),
-    tool="|".join(all_tools),
-
-
 # order is important, e.g. utils has functions needed by braker3
 include: "rules/utils.smk"
 include: "rules/collect_rnaseq_data.smk"
 include: "rules/braker3.smk"
+include: "rules/tiberius.smk"
+include: "rules/qc.smk"
 
 
-rule generate_target_file:
+rule collect_annotation:
     input:
-        get_tool_result_files,
+        result_file=Path("results", "run", "{genome}", "{tool}", "{result_file}"),
     output:
-        outdir=directory(Path("results", "{genome}", "{tool}")),
-    params:
-        directories=lambda wildcards, input: sorted(
-            set(subpath(x, parent=True) for x in input)
-        ),
-        outdir=subpath(output.outdir, parent=True),
+        result_file=Path("results", "{genome}", "{tool}", "annotation", "{result_file}"),
     shell:
-        "cp -r {params.directories} {params.outdir}/"
+        "cp {input.result_file} {output.result_file}"
 
 
 rule target:
     default_target: True
     input:
-        expand(
-            Path("results", "{genome}", "{tool}"), genome=all_genomes, tool=all_tools
-        ),
+        expand(get_results(), genome=all_genomes),

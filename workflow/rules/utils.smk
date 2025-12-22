@@ -21,11 +21,69 @@ def get_rnaseq_path(wildcards):
     return genomes_dict[wildcards.genome]["rnaseq"]
 
 
-def get_tool_result_files(wildcards):
-    tool_result_filenames = tools_dict[wildcards.tool]["result_files"]
-    tool_result_path = Path("results", "run", wildcards.genome, wildcards.tool)
-    tool_result_files = [Path(tool_result_path, x) for x in tool_result_filenames]
-    return tool_result_files
+# process the tool_dict to request the output
+def get_results():
+
+    all_target_files = []
+
+    annotation_path = Path(
+        "results", "{{genome}}", "{tool}", "annotation", "{results_file}"
+    )
+    qc_path = Path(
+        "results",
+        "{{genome}}",
+        "{tool}",
+        "qc",
+        "{results_file}",
+        "{qc_tool}",
+        "{qc_file}",
+    )
+
+    for tool, tool_data in tools_dict.items():
+        my_results_files = tool_data.get("result_files", [])
+
+        annotation_output_files = expand(
+            annotation_path, tool=tool, results_file=my_results_files
+        )
+        qc_output_files = []
+        for qc_tool, qc_tool_data in qc_tools_dict.items():
+            qc_files = expand(
+                qc_path,
+                tool=tool,
+                results_file=my_results_files,
+                qc_tool=qc_tool,
+                qc_file=qc_tool_data.get("result_files", []),
+            )
+            for qc_file in qc_files:
+                qc_output_files.append(qc_file)
+
+        for file in annotation_output_files + qc_output_files:
+            all_target_files.append(file)
+
+    return all_target_files
+
+
+genomes_dict = config["genomes"]
+tools_dict = config["tools"]
+utils = config["utils"]
+qc_tools_dict = config["qc"]
+
+
+all_genomes = sorted(set(genomes_dict.keys()))
+all_tools = sorted(set(tools_dict.keys()))
+all_result_files = list(
+    rf for td in tools_dict.values() for rf in td.get("result_files", [])
+)
+qc_result_files = list(
+    rf for td in qc_tools_dict.values() for rf in td.get("result_files", [])
+)
+
+
+wildcard_constraints:
+    genome="|".join(all_genomes),
+    tool="|".join(all_tools),
+    result_file="|".join(all_result_files),
+    qc_file="|".join(qc_result_files),
 
 
 # n.b. whitespace in the header breaks braker
