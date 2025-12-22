@@ -1,14 +1,16 @@
 genomes:
   test_genome_without_rnaseq:
-    fasta_file: "test-data/genome.fa.gz"
-    taxon_id: 3702
-    lineage: "embryophyta_odb10"
     augustus_dataset_name: "cacao"
+    busco_lineage: "embryophyta_odb10"
+    fasta_file: "test-data/genome.fa.gz"
+    helixer_lineage: "land_plant"
+    taxon_id: 3702
     tiberius_model: "Eudicotyledons"
   test_genome_with_rnaseq:
-    fasta_file: "test-data/genome.fa.gz"
-    taxon_id: 3702
-    lineage: "embryophyta_odb10"
-    rnaseq: "test-data/RNAseq.bam"
     augustus_dataset_name: "cacao"
+    busco_lineage: "embryophyta_odb10"
+    fasta_file: "test-data/genome.fa.gz"
+    helixer_lineage: "land_plant"
+    rnaseq: "test-data/RNAseq.bam"
+    taxon_id: 3702
     tiberius_model: "Eudicotyledons"

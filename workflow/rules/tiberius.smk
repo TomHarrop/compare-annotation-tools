@@ -13,7 +13,7 @@ rule tiberius:
     output:
         gtf=Path("results", "run", "{genome}", "tiberius", "tiberius.gtf"),
     params:
-        batch_size=8,
+        batch_size=16,
     log:
         Path("logs", "{genome}", "tiberius", "tiberius.log"),
     benchmark:

@@ -68,6 +68,8 @@ tools_dict = config["tools"]
 utils = config["utils"]
 qc_tools_dict = config["qc"]
 tiberius_models = tools_dict["tiberius"]["models"].keys()
+helixer_lineages = tools_dict["helixer"]["lineages"]
+
 
 all_genomes = sorted(set(genomes_dict.keys()))
 all_tools = sorted(set(tools_dict.keys()))
@@ -81,6 +83,7 @@ qc_result_files = list(
 
 wildcard_constraints:
     genome="|".join(all_genomes),
+    helixer_lineage="|".join(helixer_lineages),
     qc_file="|".join(qc_result_files),
     result_file="|".join(all_result_files),
     tiberius_model="|".join(tiberius_models),

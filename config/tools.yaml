@@ -4,6 +4,15 @@ tools:
     result_files:
       - "braker.gff3"
       - "braker.gtf"
+  helixer:
+    container: "docker://gglyptodon/helixer-docker:helixer_v0.3.6_cuda_12.2.2-cudnn8"
+    result_files:
+      - "helixer.gff3"
+    lineages:
+      - "fungi"
+      - "invertebrate"
+      - "land_plant"
+      - "vertebrate"
   tiberius:
     container: "docker://larsgabriel23/tiberius@sha256:9d24469611264ca55b5ef14a4708e632f0f6f7c11c97304ccf9cc4993d3560dd"
     result_files:
