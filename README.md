@@ -15,14 +15,14 @@ genomes:
     lineage: "embryophyta_odb10"
     rnaseq: "test-data/RNAseq.bam"
     augustus_dataset_name: "cacao"
+    tiberius_model: "Eudicotyledons"
 ```
 
-Run with snakmake:
+Pass it to snakmake using the `--configfile` option:
 
 ```bash
 snakemake \
-    --profile profiles/local \
-    --configfile config/test.yaml
+    --configfile config.yaml
 ```
 
 ## TODO
@@ -30,6 +30,7 @@ snakemake \
 - [ ] handle remote genomes
 - [ ] implement annotation tools:
   - [ ] tiberius
+    - [ ] add all the models
   - [ ] helixer
   - [ ] annevo
   - [ ] funannotate

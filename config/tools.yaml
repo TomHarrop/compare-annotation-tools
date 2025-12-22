@@ -13,7 +13,10 @@ tools:
       Sordariomycota: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/sordariomycota_weights.tar.gz" # rhynco
 utils:
   bbmap: "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
+  debian: "docker://debian:stable-20250113"
   samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"
+  wget: "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
+
 
 qc:
   annooddities:

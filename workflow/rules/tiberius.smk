@@ -47,7 +47,7 @@ rule expand_tiberius_model:
     shadow:
         "minimal"
     container:
-        "docker://debian:stable-20250113"
+        utils["debian"]
     shell:
         "mkdir -p {output} && "
         "tar -zxf {input} -C {output} --strip-components 1 &> {log} && "
@@ -69,6 +69,6 @@ rule download_tiberius_model:
     shadow:
         "minimal"
     container:
-        "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
+        utils["wget"]
     shell:
         "wget -O {output} {params.model_url} &> {log}"

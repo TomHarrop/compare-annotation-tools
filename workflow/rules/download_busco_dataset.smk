@@ -57,7 +57,7 @@ rule expand_busco_lineage_files:
     shadow:
         "minimal"
     container:
-        "docker://debian:stable-20250113"
+        utils["debian"]
     shell:
         "mkdir -p {output} && "
         "tar -zxf {input} -C {output} --strip-components 1 &> {log} && "
@@ -80,7 +80,7 @@ rule download_busco_lineage_files:
     shadow:
         "minimal"
     container:
-        "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
+        utils["wget"]
     shell:
         "wget -O {output} {params.lineage_url} &> {log} && "
         "printf '%s %s' {params.lineage_hash}  {output} | md5sum -c - &>> {log}"
@@ -94,6 +94,6 @@ checkpoint download_busco_manifest:
     log:
         "logs/download_busco_manifest.log",
     container:
-        "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
+        utils["wget"]
     shell:
         "wget {params.busco_manifest_url} -O {output} &> {log}"
