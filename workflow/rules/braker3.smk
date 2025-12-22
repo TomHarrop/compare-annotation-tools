@@ -25,10 +25,6 @@ rnaseq_dependent_braker_files = [
 ]
 
 
-def run_a_function(input):
-    raise ValueError(input)
-
-
 rule braker3:
     input:
         unpack(annotation_tool_input_dict),

@@ -5,9 +5,12 @@ tools:
       - "braker.gff3"
       - "braker.gtf"
   tiberius:
-    container: "docker://larsgabriel23/tiberius@sha256:c35ac0b456ee95df521e19abb062329fc8e39997723196172e10ae2c345f41e3"
+    container: "docker://larsgabriel23/tiberius@sha256:9d24469611264ca55b5ef14a4708e632f0f6f7c11c97304ccf9cc4993d3560dd"
     result_files:
       - "tiberius.gtf"
+    models:
+      Eudicotyledons: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/eudicotyledons_weights.tar.gz"
+      Sordariomycota: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/sordariomycota_weights.tar.gz" # rhynco
 utils:
   bbmap: "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
   samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"

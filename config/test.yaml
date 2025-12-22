@@ -4,9 +4,11 @@ genomes:
     taxon_id: 3702
     lineage: "embryophyta_odb10"
     augustus_dataset_name: "cacao"
+    tiberius_model: "Eudicotyledons"
   test_genome_with_rnaseq:
     fasta_file: "test-data/genome.fa.gz"
     taxon_id: 3702
     lineage: "embryophyta_odb10"
     rnaseq: "test-data/RNAseq.bam"
     augustus_dataset_name: "cacao"
+    tiberius_model: "Eudicotyledons"
