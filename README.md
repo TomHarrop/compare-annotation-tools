@@ -21,8 +21,8 @@ Run with snakmake:
 
 ```bash
 snakemake \
---profile profiles/local \
---configfile config/test.yaml
+    --profile profiles/local \
+    --configfile config/test.yaml
 ```
 
 ## TODO
