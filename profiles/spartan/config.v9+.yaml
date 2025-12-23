@@ -1,6 +1,6 @@
 ---
 executor: cluster-generic
-cluster-generic-submit-cmd: mkdir -p logs/{rule} &&
+cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   sbatch
   --time={resources.runtime}
   {resources.partitionFlag}
@@ -8,7 +8,7 @@ cluster-generic-submit-cmd: mkdir -p logs/{rule} &&
   --cpus-per-task={threads}
   --mem={resources.mem_mb}
   --job-name=smk-{rule}
-  --output=logs/{rule}/{rule}-%j.out
+  --output=logs/slurm/{rule}/{rule}-%j.out
   --parsable
   --gpus={resources.gpu}
 cluster-generic-status-cmd: status-sacct-robust.sh
@@ -20,6 +20,13 @@ default-resources:
   - runtime=5
   - proj=punim1712
   - gpu=0
+set-resources:
+  tiberius:
+    partitionFlag:"--partition=gpu-a100-short"
+    exclusive:"--exclusive",
+  helixer:
+    partitionFlag:"--partition=gpu-a100-short"
+    exclusive:"--exclusive",
 restart-times: 0
 max-jobs-per-second: 50
 max-status-checks-per-second: 10
@@ -37,6 +44,7 @@ apptainer-args: "-B $PWD,$TMPDIR,/data \
   --nv \
   -H $(mktemp -d) \
   --pwd $PWD \
+  --env LC_ALL=C \
   --containall --cleanenv --writable-tmpfs"
 rerun-triggers:
   - mtime

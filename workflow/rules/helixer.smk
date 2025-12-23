@@ -22,8 +22,6 @@ rule helixer:
     resources:
         runtime=240,
         gpu=1,
-        partitionFlag="--partition=gpu-h100",
-        exclusive="--exclusive",
     container:
         tools_dict["helixer"]["container"]
     shell:
