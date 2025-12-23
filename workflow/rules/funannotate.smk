@@ -25,6 +25,9 @@ rule funannotate_predict:
     benchmark:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.stats")
     threads: 32
+    resources:
+        runtime=60,
+        mem="64G"
     container:
         tools_dict["funannotate"]["container"]
     shadow:
