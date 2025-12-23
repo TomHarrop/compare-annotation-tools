@@ -19,7 +19,7 @@ rule tiberius:
     benchmark:
         Path("logs", "{genome}", "tiberius", "tiberius.stats")
     resources:
-        runtime=240,
+        runtime=5,
         gpu=1,
     container:
         tools_dict["tiberius"]["container"]

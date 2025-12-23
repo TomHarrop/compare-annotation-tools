@@ -2,7 +2,7 @@
 executor: cluster-generic
 cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   sbatch
-  --account=$PROJECT
+  "--account=${PROJECT}"
   --time={resources.runtime}
   {resources.partitionFlag}
   {resources.exclusive}
