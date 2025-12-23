@@ -4,4 +4,4 @@ test:
 	snakemake \
 		--profile profiles/local \
 		--configfile config/test.yaml \
-		--keep-going
+		--keep-going -n

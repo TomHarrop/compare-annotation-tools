@@ -2,6 +2,7 @@
 executor: cluster-generic
 cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   sbatch
+  --acount=$PROJECT
   --time={resources.runtime}
   {resources.partitionFlag}
   {resources.exclusive}
@@ -18,15 +19,12 @@ default-resources:
   - exclusive=""
   - mem_mb=4000
   - runtime=5
-  - proj=punim1712
   - gpu=0
 set-resources:
   tiberius:
     partitionFlag: "--partition=gpu-a100-short"
-    exclusive: "--exclusive"
   helixer:
     partitionFlag: "--partition=gpu-a100-short"
-    exclusive: "--exclusive"
 restart-times: 0
 max-jobs-per-second: 50
 max-status-checks-per-second: 10
