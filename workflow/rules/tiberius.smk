@@ -21,7 +21,7 @@ rule tiberius:
     resources:
         runtime=5,
         gpu=1,
-        mem="8G",
+        mem="8G",  # scales with the longest contig
     container:
         tools_dict["tiberius"]["container"]
     shell:

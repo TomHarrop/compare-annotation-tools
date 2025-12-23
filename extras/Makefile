@@ -4,7 +4,7 @@ test:
 	snakemake \
 		--profile profiles/local \
 		--configfile config/test.yaml \
-		--keep-going -n \
+		--keep-going \
 		results/run/test_genome_without_rnaseq/funannotate/funannotate.gff3
 
 
