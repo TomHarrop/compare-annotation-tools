@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 
 
+include: "funannotate_setup.smk"
+
+
 # this doesn't work with containall, writable-tmps and cleanenv.
 rule funannotate_predict:
     input:
         unpack(annotation_tool_input_dict),
-        db="",
-        gm_key="",
+        db=Path("resources", "funannotate", "db"),
+        gm_key=Path("data", "gm_key_64"),
+        busco_lineage=select_busco_lineage,
     output:
         gff=Path("results", "run", "{genome}", "funannotate", "funannotate.gff3"),
     params:
         min_training_models=200,
-        fasta=lambda wildcards, input: Path(input.fasta).resolve(),
-        db=lambda wildcards, input: Path(input.db).resolve(),
-        wd=lambda wildcards, output: Path(output.gff).parent.parent.resolve(),
+        busco_seed_species=lambda wildcards: genomes_dict[wildcards.genome][
+            "augustus_dataset_name"
+        ],
+        busco_lineage_name=subpath(input.busco_lineage, basename=True),
+        wd=subpath(output.gff, parent=True),
     log:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.log"),
     benchmark:
@@ -24,24 +30,22 @@ rule funannotate_predict:
     shadow:
         "minimal"
     shell:
-        "export FUNANNOTATE_DB={params.db} ; "
+        'header_length=$( grep "^>" {input.fasta} | wc -L ) ; '
         "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "
-        "--input {params.fasta} "
+        "--input {input.fasta} "
         "--out {params.wd} "
         '--species "{wildcards.genome}" '
-        f'--busco_seed_species "{busco_seed_species}" '
-        f"--busco_db {busco_db} "
-        f"--header_length {header_length} "
-        "--database {params.db} "
+        '--busco_seed_species "{params.busco_seed_species}" '
+        "--busco_db {params.busco_lineage_name} "
+        '--header_length "${{header_length}}" '
+        "--database {input.db} "
         "--cpus {threads} "
         "--optimize_augustus "
         "--organism other "
         "--repeats2evm "
         "--max_intronlen 50000 "
         "--min_training_models {params.min_training_models} "
-        "{params.protein_evidence} "
-        "{params.transcript_evidence} "
         "&> {log}"
 
 
