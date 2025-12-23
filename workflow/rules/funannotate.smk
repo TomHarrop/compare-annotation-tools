@@ -31,9 +31,10 @@ rule funannotate_predict:
     container:
         tools_dict["funannotate"]["container"]
     shadow:
-        "minimal"
+        "shallow"
     shell:
         'header_length=$( grep "^>" {input.fasta} | wc -L ) ; '
+        'ln -s "$( readlink -f {input.busco_lineage} )" "{input.db}/" || true ; '
         "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "
         "--input {input.fasta} "
