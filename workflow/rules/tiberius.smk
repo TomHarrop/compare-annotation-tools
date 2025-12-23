@@ -21,6 +21,7 @@ rule tiberius:
     resources:
         runtime=5,
         gpu=1,
+        mem="8G",
     container:
         tools_dict["tiberius"]["container"]
     shell:

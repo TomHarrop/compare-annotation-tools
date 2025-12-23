@@ -1,15 +1,16 @@
 ---
+__use_yte__: true
+__definitions__:
+  - raise ValueError(globals())
 printshellcmds: true
 cores: 15
 rerun-triggers:
   - mtime
 # need to set TMPDIR if we're using cleanenv
-apptainer-args: "\
-  -B $PWD,/tmp \
-  -H $(mktemp -d) \
-  --pwd $PWD \
-  --env TMPDIR=/tmp \
-  --env LC_ALL=C \
-  --containall --cleanenv --writable-tmpfs"
+apptainer-args: -B $PWD,/tmp 
+  -H $(mktemp -d) 
+  --pwd $PWD 
+  --env TMPDIR=/tmp 
+  --env LC_ALL=C 
 use-apptainer: true
 use-conda: False
