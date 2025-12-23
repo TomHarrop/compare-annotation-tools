@@ -23,10 +23,10 @@ default-resources:
 set-resources:
   tiberius:
     partitionFlag: "--partition=gpu-a100-short"
-    exclusive: "--exclusive",
+    exclusive: "--exclusive"
   helixer:
     partitionFlag: "--partition=gpu-a100-short"
-    exclusive: "--exclusive",
+    exclusive: "--exclusive"
 restart-times: 0
 max-jobs-per-second: 50
 max-status-checks-per-second: 10
