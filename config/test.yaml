@@ -8,7 +8,7 @@ genomes:
     tiberius_model: "Eudicotyledons"
   test_genome_with_rnaseq:
     augustus_dataset_name: "cacao"
-    busco_lineage: "eukaryota_odb10" # FIXME change back to emb
+    busco_lineage: "embryophyta_odb10"
     fasta_file: "test-data/genome.fa.gz"
     helixer_lineage: "land_plant"
     rnaseq: "test-data/RNAseq.bam"
