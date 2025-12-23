@@ -24,6 +24,9 @@ tools:
     container: "docker://ghcr.io/tomharrop/container-funannotate:1.8.17_cv5"
     result_files:
       - "funannotate.gff3"
+    dbs:
+      - "repeats"
+      - "uniprot"
 utils:
   bbmap: "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
   debian: "docker://debian:stable-20250113"

@@ -14,6 +14,7 @@ include: "rules/collect_rnaseq_data.smk"
 include: "rules/braker3.smk"
 include: "rules/tiberius.smk"
 include: "rules/helixer.smk"
+include: "rules/funannotate.smk"
 include: "rules/qc.smk"
 
 

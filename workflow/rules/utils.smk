@@ -63,6 +63,15 @@ def get_results():
     return all_target_files
 
 
+def select_taxid(wildcards):
+    return genomes_dict[wildcards.genome]["taxon_id"]
+
+
+def select_busco_lineage(wildcards):
+    busco_lineage = genomes_dict[wildcards.genome]["busco_lineage"]
+    return Path("resources", "busco_databases", busco_lineage)
+
+
 genomes_dict = config["genomes"]
 tools_dict = config["tools"]
 utils = config["utils"]
@@ -72,6 +81,7 @@ helixer_lineages = tools_dict["helixer"]["lineages"]
 
 
 all_genomes = sorted(set(genomes_dict.keys()))
+all_busco_lineages = sorted(set(gd["busco_lineage"] for gd in genomes_dict.values()))
 all_tools = sorted(set(tools_dict.keys()))
 all_result_files = list(
     rf for td in tools_dict.values() for rf in td.get("result_files", [])
@@ -82,6 +92,7 @@ qc_result_files = list(
 
 
 wildcard_constraints:
+    busco_lineage="|".join(all_busco_lineages),
     genome="|".join(all_genomes),
     helixer_lineage="|".join(helixer_lineages),
     qc_file="|".join(qc_result_files),
