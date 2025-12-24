@@ -17,14 +17,12 @@ def get_lineage_url(wildcards):
     # e.g.
     # https://busco-data.ezlab.org/v5/data/lineages/vertebrata_odb10.2024-01-08.tar.gz
     manifest = get_my_manifest(wildcards)
-    return (
-        f"{busco_directory_url}/lineages/{wildcards.lineage}.{manifest['date']}.tar.gz"
-    )
+    return f"{busco_directory_url}/lineages/{wildcards.busco_lineage}.{manifest['date']}.tar.gz"
 
 
 @cache
 def get_my_manifest(wildcards):
-    my_lineage = wildcards.lineage
+    my_lineage = wildcards.busco_lineage
     manifest = read_manifest(wildcards)
     return manifest[my_lineage]
 
@@ -43,13 +41,16 @@ def read_manifest(wildcards):
     return lineage_to_hash
 
 
+# these go into the funannotate DB folder so they can be used directly from FA.
 rule expand_busco_lineage_files:
     input:
-        "resources/busco_lineage_files/{lineage}.tar.gz",
+        Path("resources", "busco_lineage_files", "{busco_lineage}.tar.gz"),
     output:
-        directory("resources/busco_databases/{lineage}"),
+        busco_lineage=directory(
+            Path("resources", "funannotate", "db", "{busco_lineage}")
+        ),
     log:
-        "logs/expand_busco_lineage_files/{lineage}.log",
+        Path("logs", "expand_busco_lineage_files", "{busco_lineage}.log"),
     group:
         "busco"
     resources:
@@ -59,21 +60,21 @@ rule expand_busco_lineage_files:
     container:
         utils["debian"]
     shell:
-        "mkdir -p {output} && "
-        "tar -zxf {input} -C {output} --strip-components 1 &> {log} && "
-        "printf $(date -Iseconds) > {output}/TIMESTAMP"
+        "mkdir -p {output.busco_lineage} && "
+        "tar -zxf {input} -C {output.busco_lineage} --strip-components 1 &> {log} && "
+        "printf $(date -Iseconds) > {output.busco_lineage}/TIMESTAMP"
 
 
 rule download_busco_lineage_files:
     input:
-        "resources/busco_lineage_files/file_versions.tsv",
+        Path("resources", "busco_lineage_files", "file_versions.tsv"),
     output:
-        temp("resources/busco_lineage_files/{lineage}.tar.gz"),
+        temp(Path("resources", "busco_lineage_files", "{busco_lineage}.tar.gz")),
     params:
         lineage_url=get_lineage_url,
         lineage_hash=get_lineage_hash,
     log:
-        "logs/download_busco_lineage_files/{lineage}.log",
+        Path("logs", "download_busco_lineage_files", "{busco_lineage}.log"),
     resources:
         runtime=lambda wildcards, attempt: int(attempt * 10),
     retries: 3
@@ -88,11 +89,11 @@ rule download_busco_lineage_files:
 
 checkpoint download_busco_manifest:
     output:
-        manifest="resources/busco_lineage_files/file_versions.tsv",
+        manifest=Path("resources", "busco_lineage_files", "file_versions.tsv"),
     params:
         busco_manifest_url=f"{busco_directory_url}/{busco_manifest_path}",
     log:
-        "logs/download_busco_manifest.log",
+        Path("logs", "download_busco_manifest.log"),
     container:
         utils["wget"]
     shell:

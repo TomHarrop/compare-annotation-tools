@@ -8,17 +8,22 @@ from snakemake.logging import logger
 configfile: "config/tools.yaml"
 
 
-# order is important, e.g. utils has functions needed by braker3
-include: "rules/utils.smk"
-include: "rules/collect_rnaseq_data.smk"
-include: "rules/braker3.smk"
-include: "rules/tiberius.smk"
-include: "rules/helixer.smk"
-include: "rules/funannotate.smk"
-include: "rules/qc.smk"
+# Order is important!
+include: "rules/01_globals.smk"
+include: "rules/02_common_rules.smk"
+include: "rules/03_functions.smk"
+include: "rules/10_funannotate_setup.smk"
+include: "rules/11_download_busco_dataset.smk"
+include: "rules/20_collect_rnaseq_data.smk"
+include: "rules/30_braker3.smk"
+include: "rules/31_funannotate.smk"
+include: "rules/32_helixer.smk"
+include: "rules/33_tiberius.smk"
+include: "rules/40_qc.smk"
 
 
 rule collect_annotation:
+    localrule: True
     input:
         result_file=Path("results", "run", "{genome}", "{tool}", "{result_file}"),
     output:

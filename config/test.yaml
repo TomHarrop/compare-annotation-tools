@@ -14,3 +14,5 @@ genomes:
     rnaseq: "test-data/RNAseq.bam"
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
+parameters:
+  busco_min_training_models: 10

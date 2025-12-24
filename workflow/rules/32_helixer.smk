@@ -5,9 +5,9 @@ def get_helixer_lineage(wildcards):
     helixer_lineage = genomes_dict[wildcards.genome]["helixer_lineage"]
     return Path("resources", "helixer_lineages", helixer_lineage)
 
-# Note. Running this container on some HPCs doesn't work. I get the error
-# "Error: helixer_post_bin not found in $PATH, this is required for Helixer.py
-# to complete." See https://github.com/gglyptodon/helixer-docker/issues/11.
+# Note. Running this container on some HPCs doesn't work. I get "Error:
+# helixer_post_bin not found in $PATH, this is required for Helixer.py to
+# complete." See https://github.com/gglyptodon/helixer-docker/issues/11.
 rule helixer:
     input:
         unpack(annotation_tool_input_dict),

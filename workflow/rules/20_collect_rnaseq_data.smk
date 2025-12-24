@@ -28,7 +28,7 @@ Re-run the workflow without the bamfile.
 
 rule count_reads_in_bamfile:
     input:
-        get_rnaseq_path,
+        lambda wildcards: genomes_dict[wildcards.genome]["rnaseq"]
     output:
         flagfile=Path(
             "results", "run", "{genome}", "count_reads_in_bamfile.mapped_reads.txt"
