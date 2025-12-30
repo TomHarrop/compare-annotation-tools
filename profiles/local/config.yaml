@@ -1,6 +1,6 @@
 ---
 printshellcmds: true
-cores: 15
+cores: 12
 rerun-triggers:
   - mtime
 # need to set TMPDIR if we're using cleanenv
@@ -9,5 +9,6 @@ apptainer-args: -B $PWD,/tmp
   --pwd $PWD 
   --env TMPDIR=/tmp 
   --env LC_ALL=C 
+  --containall --cleanenv --writable-tmpfs
 use-apptainer: true
 use-conda: False
