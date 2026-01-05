@@ -36,7 +36,7 @@ rule atol_qc_annotation:
         mem="64GB",
         runtime=60,
     container:
-        "docker://quay.io/biocontainers/atol-qc-annotation:0.1.4--pyhdfd78af_0"
+        qc_tools_dict["atol_qc_annotation"]["container"]
     shell:
         "atol-qc-annotation "
         "--threads {threads} "

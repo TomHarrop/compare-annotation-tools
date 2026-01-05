@@ -3,11 +3,12 @@
 library(data.table)
 library(jsonlite)
 
-ParseJsonToDt <- function(json_file, genome) {
+ParseJsonToDt <- function(json_file, genome, tool_name) {
   nested_list <- fromJSON(json_file, flatten = TRUE)
   wide_dt <- as.data.table(t(unlist(nested_list)))
   wide_dt[, genome := genome]
-  return(melt(wide_dt, id.vars = "genome"))
+  wide_dt[, tool := tool_name]
+  return(melt(wide_dt, id.vars = c("genome", "tool")))
 }
 
 
@@ -46,6 +47,6 @@ if (exists("snakemake")) {
   tool_name <- "FIXME"
 }
 
-long_dt <- ParseJsonToDt(json_file, genome)
+long_dt <- ParseJsonToDt(json_file, genome, tool_name)
 
-ParseJsonToDt("results/test_genome_with_rnaseq/funannotate/qc/funannotate.gff3/atol_qc_annotation/short_summary.specific.busco.json", "genome")
+ParseJsonToDt("results/test_genome_with_rnaseq/funannotate/qc/funannotate.gff3/atol_qc_annotation/short_summary.specific.busco.json", "genome", "fa")
