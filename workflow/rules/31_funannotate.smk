@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+
+def funannotate_rnaseq_param(wildcards, input):
+    try:
+        return f"--rna_bam {input.rnaseq}"
+    except AttributeError as e:
+        return ""
+
+
 predict_result_files = [
     "{genome}.cds-transcripts.fa",
     "{genome}.discrepency.report.txt",
@@ -56,6 +64,7 @@ rule funannotate_predict:
         ).resolve(),
         min_training_models=config["parameters"]["busco_min_training_models"],
         outdir=subpath(output[0], ancestor=2),
+        rnaseq=funannotate_rnaseq_param,
     log:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.log"),
     benchmark:
@@ -70,19 +79,20 @@ rule funannotate_predict:
         'header_length=$( grep "^>" {input.fasta} | wc -L ) ; '
         "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "
-        "--input {input.fasta} "
-        "--out {params.outdir} "
-        '--species "{wildcards.genome}" '
         '--busco_seed_species "{params.busco_seed_species}" '
-        "--busco_db {params.busco_lineage_name} "
         '--header_length "${{header_length}}" '
-        "--database {params.db_path} "
+        '--species "{wildcards.genome}" '
+        "--busco_db {params.busco_lineage_name} "
         "--cpus {threads} "
-        "--optimize_augustus "
-        "--organism other "
-        "--repeats2evm "
+        "--database {params.db_path} "
+        "--input {input.fasta} "
         "--max_intronlen 50000 "
         "--min_training_models {params.min_training_models} "
+        "--optimize_augustus "
+        "--organism other "
+        "--out {params.outdir} "
+        "--repeats2evm "
+        "{params.rnaseq} "
         "&> {log}"
 
 

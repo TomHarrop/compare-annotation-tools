@@ -6,7 +6,8 @@ def annotation_tool_input_dict(wildcards):
     input_dict = {"fasta": Path("results", "run", "{genome}", "input_genome.fasta")}
 
     try:
-        input_dict["rnaseq"] = my_genome_dict["rnaseq"]
+        logger.info(f"Using RNAseq {my_genome_dict["rnaseq"]}")
+        input_dict["rnaseq"] = Path("results", "run", "{genome}", "rnaseq.bam")
         input_dict["rnaseq_counted"] = Path(
             "results", "run", wildcards.genome, "rnaseq_reads_ok"
         )
@@ -66,4 +67,3 @@ def get_results():
 
 def select_taxid(wildcards):
     return genomes_dict[wildcards.genome]["taxon_id"]
-

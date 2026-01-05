@@ -28,7 +28,7 @@ Re-run the workflow without the bamfile.
 
 rule count_reads_in_bamfile:
     input:
-        lambda wildcards: genomes_dict[wildcards.genome]["rnaseq"]
+        Path("results", "run", "{genome}", "rnaseq.bam"),
     output:
         flagfile=Path(
             "results", "run", "{genome}", "count_reads_in_bamfile.mapped_reads.txt"
@@ -41,3 +41,23 @@ rule count_reads_in_bamfile:
         utils["samtools"]
     shell:
         "samtools view -F4 -c {input} > {output} 2> {log}"
+
+
+rule sort_bamfile:
+    input:
+        lambda wildcards: genomes_dict[wildcards.genome]["rnaseq"],
+    output:
+        sorted=temp(Path("results", "run", "{genome}", "rnaseq.bam")),
+    log:
+        Path("logs", "{genome}", "sort_bamfile.log"),
+    benchmark:
+        Path("logs", "{genome}", "sort_bamfile.stats")
+    container:
+        utils["samtools"]
+    shell:
+        "samtools sort "
+        "--threads {threads} "
+        "-l 0 "
+        "-o {output.sorted} "
+        "{input} "
+        "&> {log}"
