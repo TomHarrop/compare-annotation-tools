@@ -16,6 +16,28 @@ qc_result_files = list(
     rf for td in qc_tools_dict.values() for rf in td.get("result_files", [])
 )
 
+# Path components, used for generating targets
+results_base = Path("results")
+genome_base = Path(results_base, "{genome}")
+tool_base = Path(genome_base, "{tool}")
+
+# ask for annotations, qc results or stats, per tool/genome
+annotation_path = Path(tool_base, "annotation", "{result_file}")
+qc_path = Path(
+    tool_base,
+    "qc",
+    "{result_file}",
+    "{qc_tool}",
+    "{qc_file}",
+)
+stats_path = Path(
+    tool_base,
+    "stats",
+    "{result_file}",
+    "{qc_file}",
+    "parsed.csv",
+)
+
 
 wildcard_constraints:
     busco_lineage="|".join(all_busco_lineages),

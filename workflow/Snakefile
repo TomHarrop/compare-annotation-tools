@@ -14,6 +14,7 @@ configfile: "config/tools.yaml"
 include: "rules/01_globals.smk"
 include: "rules/02_common_rules.smk"
 include: "rules/03_functions.smk"
+include: "rules/04_targets.smk"
 include: "rules/10_funannotate_setup.smk"
 include: "rules/11_download_busco_dataset.smk"
 include: "rules/20_collect_rnaseq_data.smk"
@@ -38,14 +39,15 @@ rule collect_annotation:
 rule target:
     default_target: True
     input:
-        expand(get_results(), genome=all_genomes),
+        get_all_results(),
 
 
 # Run stats collection no matter what, because some tools will fail.
 onsuccess:
-    stats_file=collate_stats()
+    stats_file = collate_stats()
     logger.info(f"Full stats collated to {stats_file}")
 
+
 onerror:
-    stats_file=collate_stats()
+    stats_file = collate_stats()
     logger.error(f"Partial stats collated to {stats_file}")

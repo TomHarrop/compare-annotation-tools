@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 
 
+def annotation_results(genome, tool):
+    annotation_result_files = expand(
+        annotation_path,
+        genome=genome,
+        tool=tool,
+        result_file=get_tool_result_files(tool),
+    )
+
+    return annotation_result_files
+
+
 def annotation_tool_input_dict(wildcards):
     my_genome_dict = genomes_dict[wildcards.genome]
     input_dict = {"fasta": Path("results", "run", "{genome}", "input_genome.fasta")}
@@ -27,7 +38,39 @@ def collate_stats():
     ) as fp:
         stats_file = fp.name
     shell("Rscript workflow/scripts/collate_stats.R " + stats_file)
-    return(stats_file)
+    return stats_file
+
+
+def get_all_results():
+    results = []
+    for tool in all_tools:
+        for file in get_all_tool_results(tool):
+            results.append(file)
+    return results
+
+
+def get_all_genome_results(genome):
+    results = []
+    for tool in all_tools:
+        for file in annotation_results(genome, tool):
+            results.append(file)
+        for file in qc_results(genome, tool):
+            results.append(file)
+        for file in stats_results(genome, tool):
+            results.append(file)
+    return results
+
+
+def get_all_tool_results(tool):
+    results = []
+    for genome in all_genomes:
+        for file in annotation_results(genome, tool):
+            results.append(file)
+        for file in qc_results(genome, tool):
+            results.append(file)
+        for file in stats_results(genome, tool):
+            results.append(file)
+    return results
 
 
 def get_busco_lineage(wildcards):
@@ -37,67 +80,51 @@ def get_busco_lineage(wildcards):
 
 
 # process the tool_dict to request the output
-def get_results():
+def get_tool_result_files(tool):
+    tool_data = tools_dict.get(tool)
+    return tool_data.get("result_files")
 
-    all_target_files = []
 
-    annotation_path = Path(
-        "results", "{{genome}}", "{tool}", "annotation", "{result_file}"
-    )
-    qc_path = Path(
-        "results",
-        "{{genome}}",
-        "{tool}",
-        "qc",
-        "{result_file}",
-        "{qc_tool}",
-        "{qc_file}",
-    )
-    stats_path = Path(
-        "results",
-        "{{genome}}",
-        "{tool}",
-        "stats",
-        "{result_file}",
-        "{qc_file}",
-        "parsed.csv",
-    )
+def get_qc_result_files(qc_tool):
+    qc_tool_data = qc_tools_dict.get(qc_tool)
+    return qc_tool_data.get("result_files")
 
-    for tool, tool_data in tools_dict.items():
-        my_result_files = tool_data.get("result_files", [])
 
-        annotation_output_files = expand(
-            annotation_path, tool=tool, result_file=my_result_files
+def qc_results(genome, tool):
+    qc_output_files = []
+    for qc_tool in qc_tools_dict.keys():
+        qc_files = expand(
+            qc_path,
+            genome=genome,
+            tool=tool,
+            result_file=get_tool_result_files(tool),
+            qc_tool=qc_tool,
+            qc_file=get_qc_result_files(qc_tool),
         )
-        qc_output_files = []
-        stats_files = []
-        for qc_tool, qc_tool_data in qc_tools_dict.items():
-            qc_tool_data_result_files = qc_tool_data.get("result_files", [])
-            qc_files = expand(
-                qc_path,
-                tool=tool,
-                result_file=my_result_files,
-                qc_tool=qc_tool,
-                qc_file=qc_tool_data_result_files,
-            )
-            for qc_file in qc_files:
-                qc_output_files.append(qc_file)
-
-            my_stats_files = expand(
-                stats_path,
-                tool=tool,
-                result_file=my_result_files,
-                qc_tool=qc_tool,
-                qc_file=[x for x in qc_tool_data_result_files if x.endswith(".json")],
-            )
-            for stats_file in my_stats_files:
-                stats_files.append(stats_file)
-
-        for file in annotation_output_files + qc_output_files + stats_files:
-            all_target_files.append(file)
-
-    return all_target_files
+        for qc_file in qc_files:
+            qc_output_files.append(qc_file)
+    return qc_output_files
 
 
 def select_taxid(wildcards):
     return genomes_dict[wildcards.genome]["taxon_id"]
+
+
+def stats_results(genome, tool):
+    stats_output_files = []
+    for qc_tool in qc_tools_dict.keys():
+        parsable_stats_files = [
+            x
+            for x in get_qc_result_files(qc_tool)
+            if x.endswith(".json") or x.endswith("AnnoOddities.oddity_summary.txt")
+        ]
+        stats_files = expand(
+            stats_path,
+            genome=genome,
+            tool=tool,
+            result_file=get_tool_result_files(tool),
+            qc_file=parsable_stats_files,
+        )
+        for stats_file in stats_files:
+            stats_output_files.append(stats_file)
+    return stats_output_files
