@@ -27,6 +27,7 @@ def collate_stats():
     ) as fp:
         stats_file = fp.name
     shell("Rscript workflow/scripts/collate_stats.R " + stats_file)
+    return(stats_file)
 
 
 def get_busco_lineage(wildcards):
