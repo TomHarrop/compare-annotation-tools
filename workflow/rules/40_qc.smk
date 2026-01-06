@@ -3,7 +3,7 @@
 
 rule atol_qc_annotation:
     input:
-        annotation=Path("results", "{genome}", "{tool}", "annotation", "{results_file}"),
+        annotation=Path("results", "{genome}", "{tool}", "annotation", "{result_file}"),
         fasta=Path("results", "run", "{genome}", "input_genome.fasta"),
         busco_lineage=get_busco_lineage,
         db="data/omark/LUCA.h5",
@@ -15,7 +15,7 @@ rule atol_qc_annotation:
                 "{genome}",
                 "{tool}",
                 "qc",
-                "{results_file}",
+                "{result_file}",
                 "atol_qc_annotation",
                 x,
             ).as_posix()
@@ -28,9 +28,9 @@ rule atol_qc_annotation:
         outdir=subpath(output[0], parent=True),
         taxid=select_taxid,
     log:
-        Path("logs", "{genome}", "atol_qc_annotation", "{tool}.{results_file}.log"),
+        Path("logs", "{genome}", "atol_qc_annotation", "{tool}.{result_file}.log"),
     benchmark:
-        Path("logs", "{genome}", "atol_qc_annotation", "{tool}.{results_file}.stats")
+        Path("logs", "{genome}", "atol_qc_annotation", "{tool}.{result_file}.stats")
     threads: 16
     resources:
         mem="64GB",
@@ -55,7 +55,7 @@ rule atol_qc_annotation:
 
 rule annooddities:
     input:
-        annotation=Path("results", "{genome}", "{tool}", "annotation", "{results_file}"),
+        annotation=Path("results", "{genome}", "{tool}", "annotation", "{result_file}"),
         fasta=Path("results", "run", "{genome}", "input_genome.fasta"),
     output:
         archive=Path(
@@ -63,7 +63,7 @@ rule annooddities:
             "{genome}",
             "{tool}",
             "qc",
-            "{results_file}",
+            "{result_file}",
             "annooddities",
             "AnnoOddities.tar.gz",
         ),
@@ -72,7 +72,7 @@ rule annooddities:
             "{genome}",
             "{tool}",
             "qc",
-            "{results_file}",
+            "{result_file}",
             "annooddities",
             "AnnoOddities.gff",
         ),
@@ -81,7 +81,7 @@ rule annooddities:
             "{genome}",
             "{tool}",
             "qc",
-            "{results_file}",
+            "{result_file}",
             "annooddities",
             "AnnoOddities.combined_statistics.json",
         ),
@@ -90,16 +90,16 @@ rule annooddities:
             "{genome}",
             "{tool}",
             "qc",
-            "{results_file}",
+            "{result_file}",
             "annooddities",
             "AnnoOddities.oddity_summary.txt",
         ),
     params:
         outdir=subpath(output["archive"], parent=True),
     log:
-        Path("logs", "{genome}", "annooddities", "{tool}.{results_file}.log"),
+        Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.log"),
     benchmark:
-        Path("logs", "{genome}", "annooddities", "{tool}.{results_file}.stats")
+        Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.stats")
     resources:
         mem="8GB",
         runtime=20,

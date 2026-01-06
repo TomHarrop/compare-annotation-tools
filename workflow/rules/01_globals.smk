@@ -12,7 +12,6 @@ all_tools = sorted(set(tools_dict.keys()))
 all_result_files = list(
     rf for td in tools_dict.values() for rf in td.get("result_files", [])
 )
-
 qc_result_files = list(
     rf for td in qc_tools_dict.values() for rf in td.get("result_files", [])
 )

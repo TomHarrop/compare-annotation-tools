@@ -3,12 +3,13 @@
 library(data.table)
 library(jsonlite)
 
-ParseJsonToDt <- function(json_file, genome, tool_name) {
+ParseJsonToDt <- function(json_file, genome, tool_name, result_file) {
   nested_list <- fromJSON(json_file, flatten = TRUE)
   wide_dt <- as.data.table(t(unlist(nested_list)))
   wide_dt[, genome := genome]
   wide_dt[, tool := tool_name]
-  return(melt(wide_dt, id.vars = c("genome", "tool")))
+  wide_dt[, result_file := result_file]
+  return(melt(wide_dt, id.vars = c("genome", "tool", "result_file")))
 }
 
 
@@ -16,6 +17,13 @@ if (exists("snakemake")) {
   log <- file(snakemake@log[[1]], open = "wt")
   sink(log, type = "message")
   sink(log, append = TRUE, type = "output")
+
+  json_file <- snakemake@input[["json"]]
+  genome <- snakemake@wildcards[["genome"]]
+  tool_name <- snakemake@wildcards[["tool"]]
+  result_file <- snakemake@wildcards[["result_file"]]
+
+  csv_file <- snakemake@output[["csv"]]
 } else {
   # ao_stats_files <- list.files(
   #   "results",
@@ -47,6 +55,7 @@ if (exists("snakemake")) {
   tool_name <- "FIXME"
 }
 
-long_dt <- ParseJsonToDt(json_file, genome, tool_name)
+long_dt <- ParseJsonToDt(json_file, genome, tool_name, result_file)
+fwrite(long_dt, csv_file)
 
-ParseJsonToDt("results/test_genome_with_rnaseq/funannotate/qc/funannotate.gff3/atol_qc_annotation/short_summary.specific.busco.json", "genome", "fa")
+sessionInfo()

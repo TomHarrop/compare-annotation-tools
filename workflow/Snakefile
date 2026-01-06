@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from functools import cache
 from pathlib import Path
 from snakemake.logging import logger
 
@@ -21,6 +22,7 @@ include: "rules/32_helixer.smk"
 include: "rules/33_tiberius.smk"
 include: "rules/40_qc.smk"
 include: "rules/50_collate_stats.smk"
+
 
 rule collect_annotation:
     localrule: True
