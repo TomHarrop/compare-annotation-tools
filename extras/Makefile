@@ -4,9 +4,8 @@ test:
 	snakemake \
 		--profile profiles/local \
 		--configfile config/test.yaml \
-		--keep-going --notemp -n \
-		funannotate_target 
-
+		--keep-going --notemp \
+		tiberius_target
 
 
 
