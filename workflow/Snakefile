@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from datetime import date
 from functools import cache
 from pathlib import Path
 from snakemake.logging import logger
@@ -38,3 +39,12 @@ rule target:
     default_target: True
     input:
         expand(get_results(), genome=all_genomes),
+
+
+# Run stats collection no matter what, because some tools will fail.
+onsuccess:
+    collate_stats()
+
+
+onerror:
+    collate_stats()

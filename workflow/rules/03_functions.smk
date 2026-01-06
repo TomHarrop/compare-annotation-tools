@@ -17,6 +17,18 @@ def annotation_tool_input_dict(wildcards):
     return input_dict
 
 
+def collate_stats():
+    collated_stats_dir = Path("results", "collated_stats")
+    collated_stats_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        dir=collated_stats_dir,
+        suffix=".csv",
+        prefix=f"collated_stats.{date.today().isoformat()}.",
+    ) as fp:
+        stats_file = fp.name
+    shell("Rscript workflow/scripts/collate_stats.R " + stats_file)
+
+
 def get_busco_lineage(wildcards):
     return rules.expand_busco_lineage_files.output.busco_lineage.format(
         busco_lineage=genomes_dict[wildcards.genome]["busco_lineage"]

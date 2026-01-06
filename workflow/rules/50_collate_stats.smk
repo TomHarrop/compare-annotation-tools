@@ -16,30 +16,7 @@ def collate_qc_output_files(wildcards):
 
 def get_qc_result(wildcards):
     my_qc_output = collate_qc_output_files(wildcards)
-    raise ValueError("why am I here # FIXME")
     return my_qc_output[wildcards.qc_file]
-
-
-# parsed_stats = expand(
-#     Path(
-#         "results",
-#         "{{genome}}",
-#         "{{tool}}",
-#         "stats",
-#         "{result_file}",
-#         "{qc_file}",
-#         "parsed.csv",
-#     ),
-#     zip,
-#     result_file=all_result_files,
-#     qc_file=qc_result_files,
-# )
-
-# raise ValueError(parsed_stats)
-
-# rule combine_stats_csvs:
-#     input:
-#         parsed_stats,
 
 
 rule parse_tsv:
@@ -96,6 +73,8 @@ rule parse_tsv:
 
 
 rule parse_json:
+    wildcard_constraints:
+        qc_file="|".join([x for x in qc_result_files if x.endswith(".json")]),
     input:
         json=get_qc_result,
     output:
