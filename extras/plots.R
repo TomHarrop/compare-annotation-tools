@@ -30,7 +30,7 @@ busco_data <- dt[
 # mung
 busco_data[, value := as.numeric(value)]
 busco_data[, label := sub(" percentage", "", sub("results.", "", variable))]
-busco_data
+busco_data[, label := factor(label, levels = names(busco_metrics))]
 
 
 ggplot(busco_data, aes(x = tool, y = value, fill = label)) +
