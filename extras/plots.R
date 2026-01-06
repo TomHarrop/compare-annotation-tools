@@ -6,7 +6,7 @@ library(lubridate)
 
 # which stats files are available
 stats_files <- list.files("results/collated_stats", full.names = TRUE)
-mtimes <- sapply(x, file.mtime)
+mtimes <- sapply(stats_files, file.mtime)
 latest_stats <- names(
   sort(
     as_datetime(mtimes),
@@ -30,9 +30,10 @@ busco_data <- dt[
 # mung
 busco_data[, value := as.numeric(value)]
 busco_data[, label := sub(" percentage", "", sub("results.", "", variable))]
-busco_data[, label := factor(label, levels = names(busco_metrics))]
+busco_data[, label := factor(label, levels = rev(names(busco_metrics)))]
 
 
-ggplot(busco_data, aes(x = tool, y = value, fill = label)) +
+ggplot(busco_data, aes(x = result_file, y = value, fill = label)) +
   facet_grid(~genome) +
+  scale_fill_viridis_d(guide = guide_legend(title = NULL, reverse = TRUE)) +
   geom_col(position = "stack")
