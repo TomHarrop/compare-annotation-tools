@@ -28,7 +28,7 @@ snakemake \
 ## TODO
 
 - [x] handle remote genomes
-  - [ ] FIXME - currently assuming all downloaded genomes are fasta.gz
+  - [x] FIXME - currently assuming all downloaded genomes are fasta.gz
 - [x] GPU resources - fill in the partitionflag and exclusive using yte
 - [ ] collect stats
 - [ ] implement annotation tools:
