@@ -5,7 +5,7 @@ tools:
       - "braker.gff3"
       - "braker.gtf"
   helixer:
-    container: "docker://gglyptodon/helixer-docker:helixer_v0.3.6_cuda_12.2.2-cudnn8"
+    container: "docker://ghcr.io/tomharrop/container-helixer:helixer_v0.3.6_cuda_12.2.2-cudnn8_cv2"
     result_files:
       - "helixer.gff3"
     lineages:
