@@ -22,8 +22,8 @@ rule helixer:
     benchmark:
         Path("logs", "{genome}", "helixer", "helixer.stats")
     resources:
-        runtime=5,
         gpu=1,
+        runtime=lambda wildcards, attempt: int(attempt * 60),
     container:
         tools_dict["helixer"]["container"]
     shell:

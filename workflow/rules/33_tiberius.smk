@@ -19,9 +19,9 @@ rule tiberius:
     benchmark:
         Path("logs", "{genome}", "tiberius", "tiberius.stats")
     resources:
-        runtime=5,
         gpu=1,
-        mem="8G",  # scales with the longest contig
+        mem=lambda wildcards, attempt: f"{int(attempt*16)}G",  # scales with the longest contig
+        runtime=lambda wildcards, attempt: int(attempt * 60),
     container:
         tools_dict["tiberius"]["container"]
     shell:
