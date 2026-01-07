@@ -5,7 +5,7 @@ def get_fasta(wildcards):
         return my_genome
 
     if my_genome.startswith("http://") or my_genome.startswith("https://"):
-        return storage.http(my_genome)
+        return Path("resources", "{genome}", "input_genome.fasta.gz")
 
     raise ValueError(f"Couldn't get FASTA file {my_genome}, check config.")
 
@@ -37,3 +37,21 @@ rule collect_fasta_file:
         "in={input} "
         "out={output} "
         "2>{log} "
+
+
+# We need to download manually because the Snakemake http plugin breaks the
+# bind path for Apptainer.
+rule download_remote_fasta:
+    output:
+        temp(Path("resources", "{genome}", "input_genome.fasta.gz")),
+    params:
+        url=lambda wildcards: genomes_dict[wildcards.genome]["fasta_file"],
+    log:
+        Path("logs", "download_remote_fasta", "{genome}.log"),
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 10),
+    retries: 0
+    container:
+        utils["wget"]
+    shell:
+        "wget -O {output} {params.url} &> {log}"
