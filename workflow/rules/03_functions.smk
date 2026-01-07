@@ -37,7 +37,13 @@ def collate_stats():
         prefix=f"collated_stats.{date.today().isoformat()}.",
     ) as fp:
         stats_file = fp.name
-    shell("Rscript workflow/scripts/collate_stats.R " + stats_file)
+    shell(
+        "apptainer exec "
+        + config["utils"]["r"]
+        + " "
+        + "Rscript workflow/scripts/collate_stats.R "
+        + stats_file
+    )
     return stats_file
 
 

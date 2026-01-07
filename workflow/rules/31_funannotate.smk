@@ -71,7 +71,7 @@ rule funannotate_predict:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.stats")
     threads: 32
     resources:
-        runtime=60,
+        runtime=int(3 * 24 * 60),
         mem="64G",
     container:
         tools_dict["funannotate"]["container"]

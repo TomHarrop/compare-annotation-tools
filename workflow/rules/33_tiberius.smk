@@ -20,7 +20,7 @@ rule tiberius:
         Path("logs", "{genome}", "tiberius", "tiberius.stats")
     resources:
         gpu=1,
-        mem=lambda wildcards, attempt: f"{int(attempt*16)}G",  # scales with the longest contig
+        mem=lambda wildcards, attempt: f"{int(attempt*64)}G",  # scales with the longest contig
         runtime=lambda wildcards, attempt: int(attempt * 60),
     container:
         tools_dict["tiberius"]["container"]
