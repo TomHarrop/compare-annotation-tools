@@ -79,6 +79,18 @@ def get_busco_lineage(wildcards):
     )
 
 
+# local file if we have it, otherwise try remote
+def get_fasta(wildcards):
+    my_genome = genomes_dict[wildcards.genome]["fasta_file"]
+    if exists(my_genome):
+        return my_genome
+
+    if my_genome.startswith("http://") or my_genome.startswith("https://"):
+        return storage.http(my_genome)
+
+    raise ValueError(f"Couldn't get FASTA file {my_genome}, check config.")
+
+
 # process the tool_dict to request the output
 def get_tool_result_files(tool):
     tool_data = tools_dict.get(tool)

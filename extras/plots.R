@@ -45,7 +45,8 @@ tool_order <- c(
   "braker.gff3" = "Braker3 (GFF)",
   "braker.gtf" = "Braker3 (GTF)",
   "funannotate.gff3" = "Funannotate",
-  "tiberius.gtf" = "Tiberius"
+  "tiberius.gtf" = "Tiberius",
+  "helixer.gff3" = "Helixer"
 )
 
 dt[, result_label := factor(
@@ -126,12 +127,12 @@ x + geom_col_pattern(
   position = "stack",
   colour = NA,
   fill = NA,
-  pattern="stripe",
+  pattern = "stripe",
   pattern_fill = "black",
   pattern_colour = NA,
   # pattern_angle = 45,
   pattern_density = 0.2,
-  pattern_spacing=0.025,
+  pattern_spacing = 0.025,
   pattern_size = 0.2,
   pattern_scale = 0.1,
   pattern_key_scale_factor = 0.5
@@ -140,7 +141,7 @@ x + geom_col_pattern(
   #   values = c("stripe", "crosshatch"),
   #   guide = guide_legend(title = "Hit Type")
   # )
-scale_pattern_angle_manual(values=c(30,120))
+  scale_pattern_angle_manual(values = c(30, 120))
 
 omark_conerv_pd <- MungNumericMetrics(
   dt, omark_filename, omark_conserv_metrics

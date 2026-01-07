@@ -1,7 +1,8 @@
+
 # n.b. whitespace in the header breaks braker
 rule collect_fasta_file:
     input:
-        lambda wildcards: genomes_dict[wildcards.genome]["fasta_file"],
+        get_fasta,
     output:
         Path("results", "run", "{genome}", "input_genome.fasta"),
     params:
