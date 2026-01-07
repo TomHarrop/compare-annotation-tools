@@ -1,3 +1,14 @@
+# local file if we have it, otherwise try remote
+def get_fasta(wildcards):
+    my_genome = genomes_dict[wildcards.genome]["fasta_file"]
+    if exists(my_genome):
+        return my_genome
+
+    if my_genome.startswith("http://") or my_genome.startswith("https://"):
+        return storage.http(my_genome)
+
+    raise ValueError(f"Couldn't get FASTA file {my_genome}, check config.")
+
 
 # n.b. whitespace in the header breaks braker
 rule collect_fasta_file:
