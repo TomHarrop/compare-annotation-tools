@@ -107,48 +107,73 @@ omark_metrics <- c(
 
 omark_pd <- MungNumericMetrics(dt, omark_filename, omark_metrics)
 
+# we have to subtract the partial and fragmented results to get the plot to look
+# right
+hit_type_order <- c("Partial", "Fragmented", "Total", "Remainder")
+
+
 omark_pd[endsWith(variable, "_fragmented"), hit_type := "Fragmented"]
 omark_pd[endsWith(variable, "_partial_hits"), hit_type := "Partial"]
+omark_pd[is.na(hit_type), hit_type := "Total"]
+omark_pd_wide <- dcast(
+  omark_pd, genome + result_label + variable_label ~ hit_type,
+  value.var = "value"
+)
+omark_pd_wide[
+  ,
+  Remainder := Total - (ifelse(
+    is.na(Fragmented), 0, Fragmented
+  ) + ifelse(
+    is.na(Partial), 0, Partial
+  ))
+]
 
-x <- ggplot(omark_pd[is.na(hit_type)], aes(x = result_label, y = value, fill = variable_label)) +
+omark_modified_pd <- melt(omark_pd_wide,
+  id.vars = c("genome", "result_label", "variable_label"),
+  variable.name = "hit_type",
+  variable.factor = FALSE
+)
+omark_modified_pd[, hit_type := factor(hit_type, levels = hit_type_order)]
+
+setorder(omark_modified_pd, -"variable_label", "hit_type")
+omark_modified_pd[
+  ,
+  group_variable := paste(variable_label, hit_type, sep = ".")
+]
+omark_modified_pd[, group_variable := factor(group_variable, levels = rev(unique(group_variable)))]
+
+
+ggplot(
+  omark_modified_pd[hit_type != "Total"],
+  aes(
+    x = result_label,
+    y = value,
+    fill = variable_label,
+    colour = hit_type,
+    group = group_variable
+  )
+) +
+  facet_grid(~genome) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
-  scale_fill_viridis_d(guide = guide_legend(title = "Category", reverse = TRUE)) +
+  scale_fill_viridis_d(
+    guide = guide_legend(title = "Category", reverse = TRUE),
+    alpha = 0.8
+  ) +
+  scale_colour_manual(values = c("grey80", "grey40", NA)) +
   scale_y_continuous(expand = 0.025) +
   xlab(NULL) +
   ylab("%") +
-  facet_grid(~genome) +
   geom_col(position = "stack")
 
-# FIXME. I don't think this shows the different hit type for each category
-x + geom_col_pattern(
-  mapping = aes(pattern_angle = hit_type),
-  data = omark_pd[!is.na(hit_type)],
-  position = "stack",
-  colour = NA,
-  fill = NA,
-  pattern = "stripe",
-  pattern_fill = "black",
-  pattern_colour = NA,
-  # pattern_angle = 45,
-  pattern_density = 0.2,
-  pattern_spacing = 0.025,
-  pattern_size = 0.2,
-  pattern_scale = 0.1,
-  pattern_key_scale_factor = 0.5
-) +
-  # scale_pattern_manual(
-  #   values = c("stripe", "crosshatch"),
-  #   guide = guide_legend(title = "Hit Type")
-  # )
-  scale_pattern_angle_manual(values = c(30, 120))
 
-omark_conerv_pd <- MungNumericMetrics(
+# omark conserv is the same as BUSCO, i think?
+omark_conserv_pd <- MungNumericMetrics(
   dt, omark_filename, omark_conserv_metrics
 )
 
 
-ggplot(omark_conerv_pd, aes(x = result_label, y = value, fill = variable_label)) +
+ggplot(omark_conserv_pd, aes(x = result_label, y = value, fill = variable_label)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   scale_fill_viridis_d(guide = guide_legend(title = NULL, reverse = TRUE)) +
