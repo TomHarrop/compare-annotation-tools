@@ -19,8 +19,10 @@ tools:
       - "tiberius.gtf"
     models:
       Eudicotyledons: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/eudicotyledons_weights.tar.gz"
-      Sordariomycota: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/sordariomycota_weights.tar.gz" # rhynco
+      Lepidoptera: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/lepidoptera_weights.tar.gz"
       Monocotyledonae: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/monocotyledonae_weights.tar.gz"
+      Sordariomycota: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/sordariomycota_weights.tar.gz" # rhynco
+      Vertebrates: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/vertebrates_weights.tar.gz"
   funannotate:
     container: "docker://ghcr.io/tomharrop/container-funannotate:1.8.17_cv5"
     result_files:
