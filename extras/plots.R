@@ -3,6 +3,7 @@
 library(data.table)
 library(ggplot2)
 library(lubridate)
+library(yaml)
 
 #############
 # FUNCTIONS #
@@ -23,9 +24,18 @@ MungNumericMetrics <- function(dt, qc_filename, metrics) {
   return(my_data)
 }
 
+###########
+# GLOBALS #
+###########
+
+
 ########
 # MAIN #
 ########
+
+# get the labels from the config file
+config_file <- "config/benchmark.yaml"
+
 
 # which stats files are available
 stats_files <- list.files("results/collated_stats", full.names = TRUE)
@@ -141,30 +151,29 @@ omark_modified_pd[
 ]
 omark_modified_pd[, group_variable := factor(group_variable, levels = rev(unique(group_variable)))]
 
-
 ggplot(
   omark_modified_pd[hit_type != "Total"],
   aes(
     x = result_label,
     y = value,
     fill = variable_label,
-    colour = hit_type,
+    linetype = hit_type,
     group = group_variable
-  )
+  ),
 ) +
   facet_grid(~genome) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   scale_fill_viridis_d(
-    guide = guide_legend(title = "Category", reverse = TRUE),
+    guide = guide_legend(
+      title = NULL,
+      reverse = TRUE,
+      override.aes = list(colour = NA)
+    ),
     alpha = 0.8
   ) +
-  scale_colour_manual(
-    values = c(
-      "Partial" = "black",
-      "Fragmented" = "grey50",
-      "Remainder" = NA
-    ),
+  scale_linetype_manual(
+    values = c(2, 3, 0),
     breaks = c(
       "Partial", "Fragmented"
     ),
@@ -173,10 +182,10 @@ ggplot(
       override.aes = list(fill = NA),
     )
   ) +
-  scale_y_continuous(expand = 0.025) +
+  scale_y_continuous(expand = 0) +
   xlab(NULL) +
   ylab("%") +
-  geom_col(position = "stack")
+  geom_col(position = "stack", linewidth = 0.5, colour = "black")
 
 
 # omark conserv is the same as BUSCO, i think?
