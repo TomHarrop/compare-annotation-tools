@@ -71,8 +71,8 @@ rule funannotate_predict:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.stats")
     threads: 32
     resources:
-        runtime=int(3 * 24 * 60),
         mem="64G",
+        runtime=int(3 * 24 * 60),
     container:
         tools_dict["funannotate"]["container"]
     shell:
@@ -85,6 +85,7 @@ rule funannotate_predict:
         "--busco_db {params.busco_lineage_name} "
         "--cpus {threads} "
         "--database {params.db_path} "
+        "--force "      # FIXME - this is to ignore unmasked genomes
         "--input {input.fasta} "
         "--max_intronlen 50000 "
         "--min_training_models {params.min_training_models} "

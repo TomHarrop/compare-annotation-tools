@@ -31,9 +31,11 @@ snakemake \
   - [x] FIXME - currently assuming all downloaded genomes are fasta.gz
 - [x] GPU resources - fill in the partitionflag and exclusive using yte
 - [ ] collect stats
+- [ ] collate resource usage
 - [ ] implement annotation tools:
-  - [ ] tiberius
-    - [ ] add all the models
+  - [x] tiberius
+    - [x] add all the models
   - [x] helixer
   - [ ] annevo
   - [x] funannotate
+    - [ ] remove `--force` option for unmasked genomes
