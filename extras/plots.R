@@ -3,7 +3,6 @@
 library(data.table)
 library(ggplot2)
 library(lubridate)
-library(yaml)
 
 #############
 # FUNCTIONS #
@@ -33,10 +32,6 @@ MungNumericMetrics <- function(dt, qc_filename, metrics) {
 # MAIN #
 ########
 
-# get the labels from the config file
-config_file <- "config/benchmark.yaml"
-
-
 # which stats files are available
 stats_files <- list.files("results/collated_stats", full.names = TRUE)
 mtimes <- sapply(stats_files, file.mtime)
@@ -64,6 +59,14 @@ dt[, result_label := factor(
 )]
 
 
+# get the labels from the config file
+config_file <- "config/benchmark.yaml"
+config_yaml <- yaml::read_yaml(config_file)
+labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
+
+dt[, genome_label := plyr::revalue(plyr::revalue(genome, labelled_genomes))]
+
+
 #########
 # BUSCO #
 #########
@@ -85,7 +88,7 @@ ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
   scale_y_continuous(expand = 0.025) +
   xlab(NULL) +
   ylab("%") +
-  facet_grid(~genome) +
+  facet_grid(~genome_label) +
   geom_col(position = "stack")
 
 #########
@@ -125,7 +128,7 @@ omark_pd[endsWith(variable, "_fragmented"), hit_type := "Fragmented"]
 omark_pd[endsWith(variable, "_partial_hits"), hit_type := "Partial"]
 omark_pd[is.na(hit_type), hit_type := "Total"]
 omark_pd_wide <- dcast(
-  omark_pd, genome + result_label + variable_label ~ hit_type,
+  omark_pd, genome_label + result_label + variable_label ~ hit_type,
   value.var = "value"
 )
 omark_pd_wide[
@@ -138,7 +141,7 @@ omark_pd_wide[
 ]
 
 omark_modified_pd <- melt(omark_pd_wide,
-  id.vars = c("genome", "result_label", "variable_label"),
+  id.vars = c("genome_label", "result_label", "variable_label"),
   variable.name = "hit_type",
   variable.factor = FALSE
 )
@@ -149,7 +152,10 @@ omark_modified_pd[
   ,
   group_variable := paste(variable_label, hit_type, sep = ".")
 ]
-omark_modified_pd[, group_variable := factor(group_variable, levels = rev(unique(group_variable)))]
+omark_modified_pd[
+  ,
+  group_variable := factor(group_variable, levels = rev(unique(group_variable)))
+]
 
 ggplot(
   omark_modified_pd[hit_type != "Total"],
@@ -161,7 +167,7 @@ ggplot(
     group = group_variable
   ),
 ) +
-  facet_grid(~genome) +
+  facet_grid(~genome_label) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   scale_fill_viridis_d(
