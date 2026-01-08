@@ -2,7 +2,6 @@
 
 library(data.table)
 library(ggplot2)
-library(ggpattern)
 library(lubridate)
 
 #############
@@ -160,7 +159,20 @@ ggplot(
     guide = guide_legend(title = "Category", reverse = TRUE),
     alpha = 0.8
   ) +
-  scale_colour_manual(values = c("grey80", "grey40", NA)) +
+  scale_colour_manual(
+    values = c(
+      "Partial" = "black",
+      "Fragmented" = "grey50",
+      "Remainder" = NA
+    ),
+    breaks = c(
+      "Partial", "Fragmented"
+    ),
+    guide = guide_legend(
+      title = NULL,
+      override.aes = list(fill = NA),
+    )
+  ) +
   scale_y_continuous(expand = 0.025) +
   xlab(NULL) +
   ylab("%") +
