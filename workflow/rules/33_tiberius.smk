@@ -17,7 +17,7 @@ rule tiberius:
     log:
         Path("logs", "{genome}", "tiberius", "tiberius.log"),
     benchmark:
-        Path("logs", "{genome}", "tiberius", "tiberius.stats")
+        Path("logs", "{genome}", "tiberius", "tiberius.stats.jsonl")
     resources:
         gpu=1,
         mem=lambda wildcards, attempt: f"{int(attempt*64)}G",  # scales with the longest contig

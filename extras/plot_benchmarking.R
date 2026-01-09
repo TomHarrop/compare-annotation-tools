@@ -7,14 +7,14 @@ library(data.table)
 ###########
 
 # Roughly, 1 CPU for an hour is 1 SU. Pawsey charges us 64 (although some docs
-# say 32) service units for an hour of GPU. 
+# say 32) service units for an hour of GPU.
 # The formula is:
 
 # Partition Charge Rate ✕ Max(Cores Proportion, Memory Proportion, GPU
 #   Proportion) ✕ N. of nodes requested ✕ Job Elapsed Time (Hours).
 
 # The partition charge rates are 128 SU / hour for standard and 512 SU / hour
-# for GPU. 
+# for GPU.
 
 # Based on the calculator, nodes have 128 cores and 230 GB RAM. GPUs have 8
 # SLURM GPUs per node. (i.e. we are charged 64 SU/hour of GPU, as long as we
@@ -25,6 +25,7 @@ library(data.table)
 # https://pawsey.atlassian.net/wiki/spaces/US/pages/51929028/Setonix+General+Information.
 
 cpus_per_node <- 128
+ram_per_node <- 230
 gpu_scaling_factor <- 64
 
 # I believe SLURM uses PSS (although it reports it as RSS). That's why it's used
@@ -61,5 +62,3 @@ dt <- rbindlist(lapply(annotation_stat_files, fread), idcol = "stat_file")
 
 
 dt[, `Service units consumed` := threads * s]
-
-

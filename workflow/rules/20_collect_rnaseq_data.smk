@@ -36,7 +36,7 @@ rule count_reads_in_bamfile:
     log:
         Path("logs", "{genome}", "count_reads_in_bamfile.log"),
     benchmark:
-        Path("logs", "{genome}", "count_reads_in_bamfile.stats")
+        Path("logs", "{genome}", "count_reads_in_bamfile.stats.jsonl")
     container:
         utils["samtools"]
     shell:
@@ -51,7 +51,7 @@ rule sort_bamfile:
     log:
         Path("logs", "{genome}", "sort_bamfile.log"),
     benchmark:
-        Path("logs", "{genome}", "sort_bamfile.stats")
+        Path("logs", "{genome}", "sort_bamfile.stats.jsonl")
     container:
         utils["samtools"]
     shell:

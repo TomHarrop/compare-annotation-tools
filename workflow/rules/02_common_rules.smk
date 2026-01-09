@@ -31,7 +31,7 @@ rule collect_fasta_file:
     log:
         Path("logs", "{genome}", "collect_fasta_file.log"),
     benchmark:
-        Path("logs", "{genome}", "collect_fasta_file.stats")
+        Path("logs", "{genome}", "collect_fasta_file.stats.jsonl")
     retries: 0
     resources:
         mem=lambda wildcards, attempt: f"{int(2** attempt)}GB",

@@ -20,7 +20,7 @@ rule helixer:
     log:
         Path("logs", "{genome}", "helixer", "helixer.log"),
     benchmark:
-        Path("logs", "{genome}", "helixer", "helixer.stats")
+        Path("logs", "{genome}", "helixer", "helixer.stats.jsonl")
     resources:
         gpu=1,
         runtime=lambda wildcards, attempt: int(attempt * 60),

@@ -30,7 +30,7 @@ rule atol_qc_annotation:
     log:
         Path("logs", "{genome}", "atol_qc_annotation", "{tool}.{result_file}.log"),
     benchmark:
-        Path("logs", "{genome}", "atol_qc_annotation", "{tool}.{result_file}.stats")
+        Path("logs", "{genome}", "atol_qc_annotation", "{tool}.{result_file}.stats.jsonl")
     threads: 16
     resources:
         mem="64GB",
@@ -99,7 +99,7 @@ rule annooddities:
     log:
         Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.log"),
     benchmark:
-        Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.stats")
+        Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.stats.jsonl")
     resources:
         mem="8GB",
         runtime=20,

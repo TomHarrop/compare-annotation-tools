@@ -54,7 +54,7 @@ rule parse_tsv:
             "logs",
             "{genome}",
             "parse_json",
-            "{tool}.{result_file}.AnnoOddities.oddity_summary.txt.stats",
+            "{tool}.{result_file}.AnnoOddities.oddity_summary.txt.stats.jsonl",
         )
     threads: 1
     container:
@@ -92,7 +92,7 @@ rule parse_json:
     log:
         Path("logs", "{genome}", "parse_json", "{tool}.{result_file}.{qc_file}.log"),
     benchmark:
-        Path("logs", "{genome}", "parse_json", "{tool}.{result_file}.{qc_file}.stats")
+        Path("logs", "{genome}", "parse_json", "{tool}.{result_file}.{qc_file}.stats.jsonl")
     threads: 1
     container:
         config["utils"]["r"]

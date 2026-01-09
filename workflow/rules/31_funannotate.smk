@@ -68,7 +68,7 @@ rule funannotate_predict:
     log:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.log"),
     benchmark:
-        Path("logs", "{genome}", "funannotate", "funannotate_predict.stats")
+        Path("logs", "{genome}", "funannotate", "funannotate_predict.stats.jsonl")
     threads: 32
     resources:
         mem="64G",
