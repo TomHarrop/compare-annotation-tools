@@ -42,10 +42,10 @@ rule braker3:
         Path("logs", "{genome}", "braker3", "braker3.log"),
     benchmark:
         Path("logs", "{genome}", "braker3", "braker3.stats.jsonl")
-    threads: 32
+    threads: 128
     resources:
         runtime=int(3 * 24 * 60),
-        mem_mb=int(256e3),
+        mem="230G"
     container:
         tools_dict["braker3"]["container"]
     shadow:

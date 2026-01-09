@@ -23,8 +23,20 @@ default-resources:
 set-resources:
   tiberius:
     partitionFlag: "--partition=gpu-a100-short"
+    threads: 1
+    mem: "105G"
+    runtime: 240
   helixer:
     partitionFlag: "--partition=gpu-a100-short"
+    threads: 1
+    mem: "105G"
+    runtime: 240
+  braker3:
+    threads: 32
+    mem: "256G"
+  funannotate_predict:
+    threads: 32
+    mem: "256G"
 restart-times: 0
 max-jobs-per-second: 50
 max-status-checks-per-second: 10

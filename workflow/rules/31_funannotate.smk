@@ -69,9 +69,9 @@ rule funannotate_predict:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.log"),
     benchmark:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.stats.jsonl")
-    threads: 32
+    threads: 128
     resources:
-        mem="64G",
+        mem="230G",
         runtime=int(3 * 24 * 60),
     container:
         tools_dict["funannotate"]["container"]
@@ -85,7 +85,7 @@ rule funannotate_predict:
         "--busco_db {params.busco_lineage_name} "
         "--cpus {threads} "
         "--database {params.db_path} "
-        "--force "      # FIXME - this is to ignore unmasked genomes
+        "--force "
         "--input {input.fasta} "
         "--max_intronlen 50000 "
         "--min_training_models {params.min_training_models} "
@@ -95,6 +95,7 @@ rule funannotate_predict:
         "--repeats2evm "
         "{params.rnaseq} "
         "&> {log}"
+        # FIXME - this is to ignore unmasked genomes
 
 
 # TODO, only run this if there is RNAseq data

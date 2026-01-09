@@ -36,6 +36,7 @@ snakemake \
   - [x] tiberius
     - [x] add all the models
   - [x] helixer
+    - [ ] collate RAM usage for resources
   - [ ] annevo
   - [x] funannotate
     - [ ] remove `--force` option for unmasked genomes
