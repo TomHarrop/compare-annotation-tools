@@ -37,6 +37,7 @@ keep-storage-local-copies: true
 rerun-incomplete: true
 printshellcmds: true
 use-apptainer: true
+apptainer-prefix: $APPTAINER_CACHEDIR
 use-conda: False
 apptainer-args: "-B $PWD,$TMPDIR,/data \
   --nv \
@@ -46,3 +47,4 @@ apptainer-args: "-B $PWD,$TMPDIR,/data \
   --containall --cleanenv --writable-tmpfs"
 rerun-triggers:
   - mtime
+benchmark-extended: True

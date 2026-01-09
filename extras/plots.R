@@ -10,11 +10,16 @@ library(lubridate)
 
 # metrics is a named vector mapping the metric to how we want it labelled on the
 # plot, in the order we want them to appear.
-MungNumericMetrics <- function(dt, qc_filename, metrics) {
+MungNumericMetrics <- function(dt, metrics, qc_filename = NULL) {
   my_levels <- unique(rev(metrics))
-  my_data <- dt[
-    qc_file == qc_filename & variable %in% names(metrics)
-  ]
+  my_data <- dt[variable %in% names(metrics)]
+
+  if (!is.null(qc_filename)) {
+    my_data <- my_data[
+      qc_file == qc_filename
+    ]
+  }
+
   my_data[, value := as.numeric(value)]
   my_data[, variable_label := factor(
     plyr::revalue(variable, metrics),
@@ -79,7 +84,11 @@ busco_metrics <- c(
   "results.Missing percentage" = "Missing"
 )
 
-busco_pd <- MungNumericMetrics(dt, busco_filename, busco_metrics)
+busco_pd <- MungNumericMetrics(
+  dt = dt,
+  metrics = busco_metrics,
+  qc_filename = busco_filename
+)
 
 ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
   theme_minimal() +
@@ -117,7 +126,7 @@ omark_metrics <- c(
   "results_pcts.unknown" = "Unknown"
 )
 
-omark_pd <- MungNumericMetrics(dt, omark_filename, omark_metrics)
+omark_pd <- MungNumericMetrics(dt, omark_metrics, omark_filename)
 
 # we have to subtract the partial and fragmented results to get the plot to look
 # right
@@ -196,7 +205,7 @@ ggplot(
 
 # omark conserv is the same as BUSCO, i think?
 omark_conserv_pd <- MungNumericMetrics(
-  dt, omark_filename, omark_conserv_metrics
+  dt, omark_conserv_metrics, omark_filename
 )
 
 
@@ -208,4 +217,37 @@ ggplot(omark_conserv_pd, aes(x = result_label, y = value, fill = variable_label)
   xlab(NULL) +
   ylab("%") +
   facet_grid(~genome) +
+  geom_col(position = "stack")
+
+######################
+# Annotation metrics #
+######################
+
+# Todo
+#  - percentage of canonical splicing sites
+#  - percentage with start and stop codons
+
+
+# number of genes, mean CDS length, exons per transcript?
+annot_metrics <- c(
+  "Mikado.Stat.Exons per transcript.Median" = "Median Exons per transcript",
+  # "Mikado.Stat.CDS lengths.Median" = "Median CDS length",
+  "Mikado.Stat.Number of genes.Total" = "Total number of genes"
+)
+
+
+annot_pd <- MungNumericMetrics(dt, annot_metrics)
+
+
+ggplot(annot_pd, aes(x = result_label, y = value, fill = result_label)) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    strip.placement = "outside"
+  ) +
+  scale_fill_viridis_d(guide = NULL) +
+  scale_y_continuous(expand = 0.025) +
+  xlab(NULL) +
+  ylab(NULL) +
+  facet_grid(variable_label ~ genome_label, scales = "free_y", switch = "y") +
   geom_col(position = "stack")

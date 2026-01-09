@@ -12,3 +12,5 @@ apptainer-args: -B $PWD,/tmp
   --containall --cleanenv --writable-tmpfs
 use-apptainer: true
 use-conda: False
+benchmark-extended: True
+apptainer-prefix: $APPTAINER_CACHEDIR
