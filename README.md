@@ -27,6 +27,8 @@ snakemake \
 
 ## TODO
 
+- [ ] **REMOVE `05_smk_hack`**
+  - Depends on this bug: https://github.com/snakemake/snakemake/issues/3916
 - [x] handle remote genomes
   - [x] FIXME - currently assuming all downloaded genomes are fasta.gz
 - [x] GPU resources - fill in the partitionflag and exclusive using yte

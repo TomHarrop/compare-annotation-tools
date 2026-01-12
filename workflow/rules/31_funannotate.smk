@@ -51,7 +51,9 @@ rule funannotate_predict:
         busco_lineage=get_busco_lineage,
     output:
         list(
-            Path("results", "run", "{genome}", "funannotate", "predict_results", x)
+            Path(
+                "results", "run", "{genome}", "funannotate", "predict_results", x
+            )
             for x in predict_result_files
         ),
     params:
@@ -68,7 +70,9 @@ rule funannotate_predict:
     log:
         Path("logs", "{genome}", "funannotate", "funannotate_predict.log"),
     benchmark:
-        Path("logs", "{genome}", "funannotate", "funannotate_predict.stats.jsonl")
+        Path(
+            "logs", "{genome}", "funannotate", "funannotate_predict.stats.jsonl"
+        )
     threads: 128
     resources:
         mem="230G",

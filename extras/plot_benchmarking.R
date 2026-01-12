@@ -79,15 +79,15 @@ dt <- rbindlist(
 
 
 # get the labels from the config file
-config_file <- "config/test.yaml"
+config_file <- "config/benchmark.yaml"
 config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
 
-dt[
-  , genome_label := plyr::revalue(
-    plyr::revalue(wildcards.genome, labelled_genomes)
-  )
-]
+# dt[
+#   , genome_label := plyr::revalue(
+#     plyr::revalue(wildcards.genome, labelled_genomes)
+#   )
+# ]
 
 # Parse the tool names etc.
 dt[
