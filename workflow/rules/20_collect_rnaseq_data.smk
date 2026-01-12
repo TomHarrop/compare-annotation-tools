@@ -47,7 +47,7 @@ rule sort_bamfile:
     input:
         lambda wildcards: genomes_dict[wildcards.genome]["rnaseq"],
     output:
-        sorted=temp(Path("results", "run", "{genome}", "rnaseq.bam")),
+        sorted=Path("results", "run", "{genome}", "rnaseq.bam"),
     log:
         Path("logs", "{genome}", "sort_bamfile.log"),
     benchmark:

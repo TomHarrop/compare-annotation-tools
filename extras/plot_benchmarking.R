@@ -37,7 +37,7 @@ gpu_node_charge_per_hour <- 512
 
 tool_order <- c(
   "braker3.stats.jsonl" = "Braker3",
-  "funannotate.stats.jsonl" = "Funannotate",
+  "funannotate_predict.stats.jsonl" = "Funannotate",
   "tiberius.stats.jsonl" = "Tiberius",
   "helixer.stats.jsonl" = "Helixer"
 )
@@ -120,6 +120,8 @@ pd <- melt(
   measure.vars = c("Service units (approx.)", "Wall time (h)", "Peak RAM (GB)", "cpu_usage")
 )
 
+# FIXME - just plotting tests for now
+pd <- pd[startsWith(wildcards.genome, "test")]
 
 ggplot(pd, aes(x = tool_label, fill = wildcards.genome, y = value)) +
   facet_grid(variable ~ ., scales = "free_y", switch = "y") +
