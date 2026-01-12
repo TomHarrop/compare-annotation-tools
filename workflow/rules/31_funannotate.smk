@@ -89,7 +89,6 @@ rule funannotate_predict:
         "--busco_db {params.busco_lineage_name} "
         "--cpus {threads} "
         "--database {params.db_path} "
-        "--force "
         "--input {input.fasta} "
         "--max_intronlen 50000 "
         "--min_training_models {params.min_training_models} "
