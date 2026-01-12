@@ -34,7 +34,7 @@ rule atol_qc_annotation:
     threads: 16
     resources:
         mem="64GB",
-        runtime=60,
+        runtime=120,
     container:
         qc_tools_dict["atol_qc_annotation"]["container"]
     shell:
@@ -101,8 +101,8 @@ rule annooddities:
     benchmark:
         Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.stats.jsonl")
     resources:
-        mem="16GB",
-        runtime=20,
+        mem="32GB",
+        runtime=60,
     container:
         qc_tools_dict["annooddities"]["container"]
     shadow:
