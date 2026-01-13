@@ -2,6 +2,7 @@
 executor: cluster-generic
 cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   sbatch
+  "--export={resources.sbatch_export} "
   "--account=${PROJECT}"
   --time={resources.runtime}
   {resources.partitionFlag}
@@ -20,6 +21,9 @@ default-resources:
   - mem_mb=4000
   - runtime=5
   - gpu=0
+  - sbatch_export="APPTAINER_CLEANENV=true,APPTAINER_CONTAINALL=true"
+# override containall/cleanenv for funannotate specifically
+# see https://github.com/snakemake/snakemake/issues/262#issuecomment-3669712984
 set-resources:
   tiberius:
     partitionFlag: "--partition=gpu-a100-short"
@@ -27,16 +31,17 @@ set-resources:
     mem: "105G"
     runtime: 240
   helixer:
-    partitionFlag: "--partition=gpu-a100-short"
+    partitionFlag: "--partition=gpu-a100"
     threads: 1
     mem: "105G"
-    runtime: 240
+    runtime: 1440
   braker3:
     threads: 32
     mem: "256G"
   funannotate_predict:
     threads: 32
     mem: "256G"
+    sbatch_export: "APPTAINER_CLEANENV=false,APPTAINER_CONTAINALL=false"
 restart-times: 0
 max-jobs-per-second: 50
 max-status-checks-per-second: 10
@@ -55,8 +60,8 @@ apptainer-args: "-B $PWD,$TMPDIR,/data \
   --nv \
   -H $(mktemp -d) \
   --pwd $PWD \
-  --env LC_ALL=C \
-  --containall --cleanenv --writable-tmpfs"
+  --env LC_ALL=C "
+  # --containall --cleanenv --writable-tmpfs"
 rerun-triggers:
   - mtime
 benchmark-extended: True
