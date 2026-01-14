@@ -9,7 +9,7 @@ apptainer-args: -B $PWD,/tmp
   --pwd $PWD 
   --env TMPDIR=/tmp 
   --env LC_ALL=C 
-  --containall --cleanenv --writable-tmpfs
+# --containall --cleanenv --writable-tmpfs
 use-apptainer: true
 use-conda: False
 benchmark-extended: True

@@ -25,7 +25,7 @@ include: "rules/32_helixer.smk"
 include: "rules/33_tiberius.smk"
 include: "rules/40_qc.smk"
 include: "rules/50_collate_stats.smk"
-
+include: "rules/99_debug.smk"
 
 rule collect_annotation:
     localrule: True
