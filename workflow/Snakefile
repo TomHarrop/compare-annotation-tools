@@ -6,6 +6,7 @@ from pathlib import Path
 from snakemake.logging import logger
 import gzip
 
+
 # tool config (different to run config)
 configfile: "config/tools.yaml"
 
@@ -26,8 +27,10 @@ include: "rules/33_tiberius.smk"
 include: "rules/40_qc.smk"
 include: "rules/50_collate_stats.smk"
 
+
 # Enable this to include debugging rules
 # include: "rules/99_debug.smk"
+
 
 rule collect_annotation:
     localrule: True
@@ -45,7 +48,7 @@ rule target:
         get_all_results(),
 
 
-Run stats collection no matter what, because some tools will fail.
+# Run stats collection no matter what, because some tools will fail.
 onsuccess:
     stats_file = collate_stats()
     logger.info(f"Full stats collated to {stats_file}")
