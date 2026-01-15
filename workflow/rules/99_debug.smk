@@ -15,7 +15,11 @@ rule print_apptainer_environment:
     resources:
         runtime=1,
         mem_mb=100,
-        sbatch_export="APPTAINER_CLEANENV=,APPTAINER_CONTAINALL=false,APPTAINER_WRITABLE_TMPFS=false",
+        sbatch_export=lambda wildcards: (
+            'APPTAINER_CLEANENV="true",APPTAINER_CONTAINALL="true",APPTAINER_WRITABLE_TMPFS="true"'
+            if wildcards.export == True
+            else 'APPTAINER_CLEANENV="",APPTAINER_CONTAINALL="",APPTAINER_WRITABLE_TMPFS=""'
+        ),
     container:
         config["utils"]["debian"]
     shell:
