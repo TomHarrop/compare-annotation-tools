@@ -25,7 +25,9 @@ include: "rules/32_helixer.smk"
 include: "rules/33_tiberius.smk"
 include: "rules/40_qc.smk"
 include: "rules/50_collate_stats.smk"
-include: "rules/99_debug.smk"
+
+# Enable this to include debugging rules
+# include: "rules/99_debug.smk"
 
 rule collect_annotation:
     localrule: True
@@ -43,12 +45,12 @@ rule target:
         get_all_results(),
 
 
-# Run stats collection no matter what, because some tools will fail.
-# onsuccess:
-#     stats_file = collate_stats()
-#     logger.info(f"Full stats collated to {stats_file}")
+Run stats collection no matter what, because some tools will fail.
+onsuccess:
+    stats_file = collate_stats()
+    logger.info(f"Full stats collated to {stats_file}")
 
 
-# onerror:
-#     stats_file = collate_stats()
-#     logger.error(f"Partial stats collated to {stats_file}")
+onerror:
+    stats_file = collate_stats()
+    logger.error(f"Partial stats collated to {stats_file}")

@@ -41,7 +41,7 @@ set-resources:
   funannotate_predict:
     threads: 32
     mem: "256G"
-    # sbatch_export: "APPTAINER_CLEANENV=false,APPTAINER_CONTAINALL=false,APPTAINER_WRITABLE_TMPFS=false"
+    sbatch_export: 'APPTAINER_CLEANENV="",APPTAINER_CONTAINALL="",APPTAINER_WRITABLE_TMPFS=""'
 restart-times: 0
 max-jobs-per-second: 50
 max-status-checks-per-second: 10
@@ -56,7 +56,8 @@ printshellcmds: true
 use-apptainer: true
 apptainer-prefix: $APPTAINER_CACHEDIR
 use-conda: False
-apptainer-args: "-B $PWD,$TMPDIR,/data \
+apptainer-args:
+  "-B $PWD,$TMPDIR,/data \
   --nv \
   -H $(mktemp -d) \
   --pwd $PWD \
