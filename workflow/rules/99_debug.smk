@@ -17,7 +17,7 @@ rule print_apptainer_environment:
         mem_mb=100,
         sbatch_export=lambda wildcards: (
             'APPTAINER_CLEANENV="true",APPTAINER_CONTAINALL="true",APPTAINER_WRITABLE_TMPFS="true"'
-            if wildcards.export == True
+            if wildcards.export == "True"
             else 'APPTAINER_CLEANENV="",APPTAINER_CONTAINALL="",APPTAINER_WRITABLE_TMPFS=""'
         ),
     container:
