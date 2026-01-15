@@ -32,9 +32,9 @@ rule collect_fasta_file:
         Path("logs", "{genome}", "collect_fasta_file.log"),
     benchmark:
         Path("logs", "{genome}", "collect_fasta_file.stats.jsonl")
-    retries: 0
+    retries: 2
     resources:
-        mem=lambda wildcards, attempt: f"{int(2** attempt)}GB",
+        mem=lambda wildcards, attempt: f"{int(2**(attempt+1))}GB",
     container:
         utils["bbmap"]
     shell:
@@ -62,7 +62,7 @@ rule download_remote_fasta:
         Path("logs", "download_remote_fasta", "{genome}.log"),
     resources:
         runtime=lambda wildcards, attempt: int(attempt * 10),
-    retries: 0
+    retries: 2
     container:
         utils["wget"]
     shell:

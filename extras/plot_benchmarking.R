@@ -121,7 +121,7 @@ pd <- melt(
 )
 
 # FIXME - just plotting tests for now
-pd <- pd[startsWith(wildcards.genome, "test")]
+pd <- pd[!startsWith(wildcards.genome, "test")]
 
 ggplot(pd, aes(x = tool_label, fill = wildcards.genome, y = value)) +
   facet_grid(variable ~ ., scales = "free_y", switch = "y") +
