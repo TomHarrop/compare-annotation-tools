@@ -55,7 +55,7 @@ rule funannotate_predict:
             Path("results", "run", "{genome}", "funannotate", "predict_results", x)
             for x in predict_result_files
         ),
-        directory("results", "run", "{genome}", "funannotate", "predict_misc"),
+        directory(Path("results", "run", "{genome}", "funannotate", "predict_misc")),
     params:
         busco_seed_species=lambda wildcards: genomes_dict[wildcards.genome][
             "augustus_dataset_name"
