@@ -44,11 +44,11 @@ rule target:
 
 
 # Run stats collection no matter what, because some tools will fail.
-onsuccess:
-    stats_file = collate_stats()
-    logger.info(f"Full stats collated to {stats_file}")
+# onsuccess:
+#     stats_file = collate_stats()
+#     logger.info(f"Full stats collated to {stats_file}")
 
 
-onerror:
-    stats_file = collate_stats()
-    logger.error(f"Partial stats collated to {stats_file}")
+# onerror:
+#     stats_file = collate_stats()
+#     logger.error(f"Partial stats collated to {stats_file}")

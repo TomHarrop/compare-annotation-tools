@@ -1,8 +1,8 @@
 ---
 executor: cluster-generic
-  # "--export={resources.sbatch_export} "
 cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   sbatch
+  "--export={resources.sbatch_export} "
   "--account=${PROJECT}"
   --time={resources.runtime}
   {resources.partitionFlag}
@@ -21,7 +21,7 @@ default-resources:
   - mem_mb=4000
   - runtime=5
   - gpu=0
-  # - sbatch_export="APPTAINER_CLEANENV=true,APPTAINER_CONTAINALL=true,APPTAINER_WRITABLE_TMPFS=true"
+  - sbatch_export="APPTAINER_CLEANENV=true,APPTAINER_CONTAINALL=true,APPTAINER_WRITABLE_TMPFS=true"
 # override containall/cleanenv for funannotate specifically
 # see https://github.com/snakemake/snakemake/issues/262#issuecomment-3669712984
 set-resources:
