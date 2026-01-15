@@ -12,12 +12,10 @@ rule print_apptainer_environment:
         export="|".join([str(True), str(False)]),
     output:
         Path("debug", "env.{export}.txt"),
-    # resources:
-    #     sbatch_export=lambda wildcards: (
-    #         "APPTAINER_CLEANENV=true,APPTAINER_CONTAINALL=true,APPTAINER_WRITABLE_TMPFS=true"
-    #         if wildcards.export
-    #         else "APPTAINER_CLEANENV=,APPTAINER_CONTAINALL=false,APPTAINER_WRITABLE_TMPFS=false"
-    #     ),
+    resources:
+        runtime=1,
+        mem_mb=100,
+        sbatch_export="APPTAINER_CLEANENV=,APPTAINER_CONTAINALL=false,APPTAINER_WRITABLE_TMPFS=false",
     container:
         config["utils"]["debian"]
     shell:
