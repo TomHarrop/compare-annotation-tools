@@ -3,7 +3,7 @@
 
 def funannotate_rnaseq_param(wildcards, input):
     try:
-        return f"--rna_bam {input.rnaseq}"
+        return f"--rna_bam {Path(input.rnaseq).resolve()}"
     except AttributeError as e:
         return ""
 
@@ -57,15 +57,16 @@ rule funannotate_predict:
         ),
         directory(Path("results", "run", "{genome}", "funannotate", "predict_misc")),
     params:
+        busco_lineage_name=subpath(input.busco_lineage, basename=True),
         busco_seed_species=lambda wildcards: genomes_dict[wildcards.genome][
             "augustus_dataset_name"
         ],
-        busco_lineage_name=subpath(input.busco_lineage, basename=True),
         db_path=lambda wildcards, input: Path(
             subpath(input.db[0], parent=True)
         ).resolve(),
+        fasta=lambda wildcards, input: Path(input.fasta).resolve(),
         min_training_models=config["parameters"]["busco_min_training_models"],
-        outdir=subpath(output[0], ancestor=2),
+        outdir=lambda wildcards, output: Path(subpath(output[0], ancestor=2)).resolve(),
         rnaseq=funannotate_rnaseq_param,
     log:
         log=Path("logs", "{genome}", "funannotate", "funannotate_predict.log"),
@@ -89,7 +90,7 @@ rule funannotate_predict:
         "--busco_db {params.busco_lineage_name} "
         "--cpus {threads} "
         "--database {params.db_path} "
-        "--input {input.fasta} "
+        "--input {params.fasta} "
         "--max_intronlen 50000 "
         "--min_training_models {params.min_training_models} "
         "--optimize_augustus "
