@@ -124,6 +124,7 @@ ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    strip.text.x = element_text(face = "italic")
   ) +
   scale_fill_viridis_d(guide = guide_legend(title = NULL, reverse = TRUE)) +
   scale_y_continuous(expand = 0.025) +
