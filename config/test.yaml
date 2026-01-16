@@ -1,12 +1,15 @@
 genomes:
   test_genome_without_rnaseq:
+    label: "Arabidopsis fragment"
     augustus_dataset_name: "cacao"
     busco_lineage: "embryophyta_odb10"
     fasta_file: "test-data/genome.fa.gz"
     helixer_lineage: "land_plant"
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
+    ncbi_family: "Brassicales"
   test_genome_with_rnaseq:
+    label: "Arabidopsis fragment with RNAseq"
     augustus_dataset_name: "cacao"
     busco_lineage: "embryophyta_odb10"
     fasta_file: "test-data/genome.fa.gz"
@@ -14,5 +17,6 @@ genomes:
     rnaseq: "test-data/RNAseq.bam"
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
+    ncbi_family: "Brassicales"
 parameters:
   busco_min_training_models: 10

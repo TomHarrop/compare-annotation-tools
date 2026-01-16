@@ -32,6 +32,20 @@ MungNumericMetrics <- function(dt, metrics, qc_filename = NULL) {
 # GLOBALS #
 ###########
 
+# TODO: define this somewhere else
+order_order <- c(
+  "Helotiales",
+  "Asparagales",
+  "Poales",
+  "Hymenoptera",
+  "Clupeiformes",
+  "Atheriniformes",
+  "Squamata",
+  "Passeriformes"
+)
+
+order_palette <- viridisLite::magma(length(order_order))
+names(order_palette) <- order_order
 
 ########
 # MAIN #
@@ -68,8 +82,24 @@ dt[, result_label := factor(
 config_file <- "config/benchmark.yaml"
 config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
+genome_orders <- sapply(config_yaml$genomes, function(x) x$ncbi_order)
 
 dt[, genome_label := plyr::revalue(plyr::revalue(genome, labelled_genomes))]
+dt[, genome_order := factor(
+  plyr::revalue(genome, genome_orders),
+  levels = order_order
+)]
+setorder(dt, genome_order)
+dt[, genome_label := factor(genome_label, levels = unique(genome_label))]
+
+# order the colour scale
+order_label_cols <- order_palette[
+  dt[
+    ,
+    as.character(genome_order)[[1]],
+    by = genome_label
+  ][, V1]
+]
 
 
 #########
@@ -92,7 +122,9 @@ busco_pd <- MungNumericMetrics(
 
 ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+  ) +
   scale_fill_viridis_d(guide = guide_legend(title = NULL, reverse = TRUE)) +
   scale_y_continuous(expand = 0.025) +
   xlab(NULL) +
