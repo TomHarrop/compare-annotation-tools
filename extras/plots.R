@@ -33,6 +33,16 @@ MungNumericMetrics <- function(dt, metrics, qc_filename = NULL) {
 # GLOBALS #
 ###########
 
+# Braker outputs GTF by default, but can also output GFF. Enable the first line
+# here to see if there is any difference.
+tool_order <- c(
+  # "braker.gff3" = "Braker3 (GFF)",
+  "funannotate.gff3" = "Funannotate",
+  "braker.gtf" = "Braker3",
+  "helixer.gff3" = "Helixer",
+  "tiberius.gtf" = "Tiberius"
+)
+
 # TODO: define this somewhere else
 order_order <- c(
   "Helotiales",
@@ -72,17 +82,6 @@ latest_stats <- names(
 )
 
 dt <- fread(latest_stats)
-
-# General settings
-# Braker outputs GTF by default, but can also output GFF. Enable the first line
-# here to see if there is any difference.
-tool_order <- c(
-  # "braker.gff3" = "Braker3 (GFF)",
-  "braker.gtf" = "Braker3",
-  "funannotate.gff3" = "Funannotate",
-  "tiberius.gtf" = "Tiberius",
-  "helixer.gff3" = "Helixer"
-)
 
 dt[, result_label := factor(
   plyr::revalue(result_file, tool_order),
@@ -133,7 +132,7 @@ busco_pd <- MungNumericMetrics(
 )
 
 gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
-  theme_minimal(base_family = font_family, base_size = font_size) +
+  theme_grey(base_family = font_family, base_size = font_size) +
   # theme_minimal(base_family="Lato", base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
@@ -148,7 +147,7 @@ gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) 
       position = "top"
     )
   ) +
-  scale_y_continuous(expand = 0.025) +
+  scale_y_continuous(expand = 0) +
   xlab(NULL) +
   ylab("%") +
   facet_grid(
@@ -240,7 +239,7 @@ ggplot(
     cols = vars(genome_label),
     labeller = labeller(genome_label = label_wrap_gen(width = 8))
   ) +
-  theme_minimal() +
+  theme_grey() +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
     strip.text.x = element_text(face = "italic")
