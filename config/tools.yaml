@@ -17,12 +17,15 @@ tools:
     container: "docker://larsgabriel23/tiberius@sha256:9d24469611264ca55b5ef14a4708e632f0f6f7c11c97304ccf9cc4993d3560dd"
     result_files:
       - "tiberius.gtf"
-    models:
+    models: # note the Vertebrates model requires non-softmasked genomes. See https://github.com/Gaius-Augustus/Tiberius/tree/main/model_cfg
       Eudicotyledons: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/eudicotyledons_weights.tar.gz"
       Lepidoptera: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/lepidoptera_weights.tar.gz"
       Monocotyledonae: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/monocotyledonae_weights.tar.gz"
       Sordariomycota: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/sordariomycota_weights.tar.gz" # rhynco
       Vertebrates: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/vertebrates_weights.tar.gz"
+      Insecta: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/insecta_weights.tar.gz"
+    no_softmasking:
+      - Vertebrates
   funannotate:
     container: "docker://ghcr.io/tomharrop/container-funannotate:1.8.17_cv5"
     result_files:

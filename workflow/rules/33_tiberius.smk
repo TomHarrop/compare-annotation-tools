@@ -6,6 +6,16 @@ def get_tiberius_model(wildcards):
     return Path("resources", "tiberius_models", tiberius_model)
 
 
+def get_tiberius_softmask_param(wildcards, input):
+    genome_is_softmasked = genomes_dict[wildcards.genome]["softmasked"]
+    model_name = Path(input.model).name
+    model_disallows_softmasking = model_name in tools_dict["tiberius"]["no_softmasking"]
+    if genome_is_softmasked and model_disallows_softmasking:
+        return "--no_softmasking"
+    else:
+        return ""
+
+
 rule tiberius:
     input:
         unpack(annotation_tool_input_dict),
@@ -14,6 +24,7 @@ rule tiberius:
         gtf=Path("results", "run", "{genome}", "tiberius", "tiberius.gtf"),
     params:
         batch_size=16,
+        softmask_param=get_tiberius_softmask_param,
     log:
         Path("logs", "{genome}", "tiberius", "tiberius.log"),
     benchmark:
@@ -30,6 +41,7 @@ rule tiberius:
         "--model {input.model} "
         "--out {output.gtf} "
         "--batch_size {params.batch_size} "
+        "{params.softmask_param} "
         "&> {log}"
 
 

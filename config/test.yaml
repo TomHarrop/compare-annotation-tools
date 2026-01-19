@@ -8,6 +8,7 @@ genomes:
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
     ncbi_family: "Brassicales"
+    softmasked: True
   test_genome_with_rnaseq:
     label: "Arabidopsis fragment with RNAseq"
     augustus_dataset_name: "cacao"
@@ -18,5 +19,6 @@ genomes:
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
     ncbi_family: "Brassicales"
+    softmasked: True
 parameters:
   busco_min_training_models: 10
