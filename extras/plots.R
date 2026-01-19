@@ -64,9 +64,11 @@ latest_stats <- names(
 dt <- fread(latest_stats)
 
 # General settings
+# Braker outputs GTF by default, but can also output GFF. Enable the first line
+# here to see if there is any difference.
 tool_order <- c(
-  "braker.gff3" = "Braker3 (GFF)",
-  "braker.gtf" = "Braker3 (GTF)",
+  # "braker.gff3" = "Braker3 (GFF)",
+  "braker.gtf" = "Braker3",
   "funannotate.gff3" = "Funannotate",
   "tiberius.gtf" = "Tiberius",
   "helixer.gff3" = "Helixer"
@@ -76,7 +78,7 @@ dt[, result_label := factor(
   plyr::revalue(result_file, tool_order),
   levels = tool_order
 )]
-
+dt <- dt[!is.na(result_label)]
 
 # get the labels from the config file
 config_file <- "config/benchmark.yaml"
@@ -130,7 +132,10 @@ ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
   scale_y_continuous(expand = 0.025) +
   xlab(NULL) +
   ylab("%") +
-  facet_grid(~genome_label) +
+  facet_grid(
+    cols = vars(genome_label),
+    labeller = labeller(genome_label = label_wrap_gen(width = 8))
+  ) +
   geom_col(position = "stack")
 
 #########
@@ -209,9 +214,15 @@ ggplot(
     group = group_variable
   ),
 ) +
-  facet_grid(~genome_label) +
+  facet_grid(
+    cols = vars(genome_label),
+    labeller = labeller(genome_label = label_wrap_gen(width = 8))
+  ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    strip.text.x = element_text(face = "italic")
+  ) +
   scale_fill_viridis_d(
     guide = guide_legend(
       title = NULL,
@@ -260,27 +271,37 @@ ggplot(omark_conserv_pd, aes(x = result_label, y = value, fill = variable_label)
 #  - percentage of canonical splicing sites
 #  - percentage with start and stop codons
 
+dt[variable == "Mikado.Stat.Number of genes.Total"]
 
 # number of genes, mean CDS length, exons per transcript?
 annot_metrics <- c(
   "Mikado.Stat.Exons per transcript.Median" = "Median Exons per transcript",
   # "Mikado.Stat.CDS lengths.Median" = "Median CDS length",
-  "Mikado.Stat.Number of genes.Total" = "Total number of genes"
+  "Mikado.Stat.Number of genes.Total" = "Total genes"
 )
 
 
 annot_pd <- MungNumericMetrics(dt, annot_metrics)
+annot_pd[variable_label=="Total genes", 
+         c("variable_label", "value") := .("Total genes (thousands)", value / 1e3)]
 
 
 ggplot(annot_pd, aes(x = result_label, y = value, fill = result_label)) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    strip.text.x = element_text(face = "italic"),
     strip.placement = "outside"
   ) +
   scale_fill_viridis_d(guide = NULL) +
   scale_y_continuous(expand = 0.025) +
   xlab(NULL) +
   ylab(NULL) +
-  facet_grid(variable_label ~ genome_label, scales = "free_y", switch = "y") +
+  facet_grid(
+    rows = vars(variable_label),
+    cols = vars(genome_label),
+    scales = "free_y",
+    switch = "y",
+    labeller = labeller(genome_label = label_wrap_gen(width = 8))
+  ) +
   geom_col(position = "stack")
