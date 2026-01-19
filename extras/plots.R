@@ -3,6 +3,7 @@
 library(data.table)
 library(ggplot2)
 library(lubridate)
+library(extrafont)
 
 #############
 # FUNCTIONS #
@@ -46,6 +47,15 @@ order_order <- c(
 
 order_palette <- viridisLite::magma(length(order_order))
 names(order_palette) <- order_order
+
+# Plot config
+textwidth <- 382
+phi <- 0.5 * (sqrt(5) + 1)
+mm_width <- grid::convertUnit(grid::unit(textwidth, "pt"), "mm", valueOnly = TRUE)
+mm_height <- mm_width / phi
+
+font_family <- "Atkinson Hyperlegible"
+font_size <- 8
 
 ########
 # MAIN #
@@ -122,13 +132,22 @@ busco_pd <- MungNumericMetrics(
   qc_filename = busco_filename
 )
 
-ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
-  theme_minimal() +
+gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
+  theme_minimal(base_family = font_family, base_size = font_size) +
+  # theme_minimal(base_family="Lato", base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
-    strip.text.x = element_text(face = "italic")
+    strip.text.x = element_text(face = "italic"),
+    legend.key.size = unit(font_size, "pt"),
+    legend.key.justification = "centre",
   ) +
-  scale_fill_viridis_d(guide = guide_legend(title = NULL, reverse = TRUE)) +
+  scale_fill_viridis_d(
+    guide = guide_legend(
+      title = NULL,
+      reverse = TRUE,
+      position = "top"
+    )
+  ) +
   scale_y_continuous(expand = 0.025) +
   xlab(NULL) +
   ylab("%") +
@@ -137,6 +156,9 @@ ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
     labeller = labeller(genome_label = label_wrap_gen(width = 8))
   ) +
   geom_col(position = "stack")
+
+
+ggsave("plot.pdf", gp, width = mm_width, height = mm_height, units = "mm", device = cairo_pdf)
 
 #########
 # OMArk #
@@ -282,8 +304,10 @@ annot_metrics <- c(
 
 
 annot_pd <- MungNumericMetrics(dt, annot_metrics)
-annot_pd[variable_label=="Total genes", 
-         c("variable_label", "value") := .("Total genes (thousands)", value / 1e3)]
+annot_pd[
+  variable_label == "Total genes",
+  c("variable_label", "value") := .("Total genes (thousands)", value / 1e3)
+]
 
 
 ggplot(annot_pd, aes(x = result_label, y = value, fill = result_label)) +
