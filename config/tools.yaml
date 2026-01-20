@@ -36,9 +36,10 @@ tools:
 utils:
   bbmap: "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
   debian: "docker://debian:stable-20250113"
-  samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"
-  wget: "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
   r: "docker://ghcr.io/tomharrop/r-containers:r2u_24.04_cv1"
+  samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"
+  tetools: "docker://dfam/tetools:1.95"
+  wget: "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
 qc:
   annooddities:
     container: "docker://gemygk/annooddities:v0.1.0"
