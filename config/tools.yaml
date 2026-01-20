@@ -27,7 +27,7 @@ tools:
     no_softmasking:
       - Vertebrates
   funannotate:
-    container: "docker://ghcr.io/tomharrop/container-funannotate:1.8.17_cv5"
+    container: "docker://ghcr.io/tomharrop/container-funannotate:1.8.17_cv6"
     result_files:
       - "funannotate.gff3"
     dbs:

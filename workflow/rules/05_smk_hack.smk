@@ -6,6 +6,8 @@ logger.error("""
 *******************************
 """)
 
+
+# see https://github.com/snakemake/snakemake/issues/3916
 import json as _json
 _orig_dumps = _json.dumps
 def _dumps(obj, *args, **kwargs):

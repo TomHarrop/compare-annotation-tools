@@ -55,7 +55,7 @@ rule funannotate_predict:
             Path("results", "run", "{genome}", "funannotate", "predict_results", x)
             for x in predict_result_files
         ),
-        directory(Path("results", "run", "{genome}", "funannotate", "predict_misc")),
+        predict_misc=directory(Path("results", "run", "{genome}", "funannotate", "predict_misc")),
     params:
         busco_lineage_name=subpath(input.busco_lineage, basename=True),
         busco_seed_species=lambda wildcards: genomes_dict[wildcards.genome][
@@ -81,6 +81,7 @@ rule funannotate_predict:
         tools_dict["funannotate"]["container"]
     shell:
         "env &> {log.env} && "
+        "mkdir -p {output.predict_misc}/tmp_opt_{wildcards.genome} && " # see https://github.com/nextgenusfs/funannotate/pull/1149
         'header_length=$( grep "^>" {input.fasta} | wc -L ) ; '
         "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "
