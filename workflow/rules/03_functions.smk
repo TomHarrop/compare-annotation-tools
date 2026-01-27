@@ -80,8 +80,15 @@ def get_all_tool_results(tool):
 
 
 def get_busco_lineage(wildcards):
+    genome = wildcards.get("genome")
+    tool = wildcards.get("tool")
+    try:
+        busco_lineage = genomes_dict[genome]["overrides"][tool]["busco_lineage"]
+    except KeyError as e:
+        busco_lineage = genomes_dict[genome]["busco_lineage"]
+
     return rules.expand_busco_lineage_files.output.busco_lineage.format(
-        busco_lineage=genomes_dict[wildcards.genome]["busco_lineage"]
+        busco_lineage=busco_lineage
     )
 
 
