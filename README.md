@@ -27,15 +27,28 @@ snakemake \
 
 ## Recommendations
 
-Sometimes `funannotate` fails with an error like this:
+### BUSCO lineage for `funannotate`
+
+Choosing the right BUSCO lineage for `funannotate` (`--busco_db` option) seems
+to be hit and miss. We start with the closest parent lineage, and keep trying
+higher-level DBs until we find one that works.
+
+Sometimes `funannotate` fails at the BUSCO step, with an error like this:
 
 ```
 ERROR 69: /usr/local/bin/../share/glimmerhmm/train/score exited funny: 35584 at /usr/local/bin/trainGlimmerHMM line 445.
 ```
 
-It seems to be caused by certain combinations of genome and BUSCO lineage. The
-workaround we use is to specify a higher-level BUSCO lineage for funannotate
-only in the config, like this:
+Sometimes it fails like this:
+
+```
+[Jan 28 12:29 AM]: Running BUSCO to find conserved gene models for training ab-initio predictors
+[Jan 28 01:01 AM]: 0 valid BUSCO predictions found, validating protein sequences
+```
+
+Neither error happens every time for a given lineage so it's probably caused by
+certain combinations of genome and lineage. It's possible to override the BUSCO
+lineage for `funannotate` in the config, like this:
 
 ```yaml
   test_genome:
@@ -46,7 +59,6 @@ only in the config, like this:
       funannotate:
         busco_lineage: "viridiplantae_odb10"
 ```
-
 
 ## TODO
 
