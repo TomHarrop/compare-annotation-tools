@@ -25,6 +25,29 @@ snakemake \
     --configfile config.yaml
 ```
 
+## Recommendations
+
+Sometimes `funannotate` fails with an error like this:
+
+```
+ERROR 69: /usr/local/bin/../share/glimmerhmm/train/score exited funny: 35584 at /usr/local/bin/trainGlimmerHMM line 445.
+```
+
+It seems to be caused by certain combinations of genome and BUSCO lineage. The
+workaround we use is to specify a higher-level BUSCO lineage for funannotate
+only in the config, like this:
+
+```yaml
+  test_genome:
+    busco_lineage: "embryophyta_odb10"
+    fasta_file: "test-data/genome.fa.gz"
+    taxon_id: 3702
+    overrides:
+      funannotate:
+        busco_lineage: "viridiplantae_odb10"
+```
+
+
 ## TODO
 
 - [ ] **REMOVE `05_smk_hack`**
