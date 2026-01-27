@@ -58,6 +58,12 @@ order_order <- c(
 order_palette <- viridisLite::magma(length(order_order))
 names(order_palette) <- order_order
 
+# NAR guidelines
+# (https://static.primary.prod.gcms.the-infra.com/static/site/journals/document/images-author-guidance.pdf?node=1bf05d0b2fbd9c529a23&version=490455:30c2211aa70bba63a5ee)
+#  - Use Arial, Times New Roman, Courier or Symbol fonts for accurate reproduction
+#  - Ensure text is no less than 7pt
+# No guidance on size
+
 # Plot config
 textwidth <- 382
 phi <- 0.5 * (sqrt(5) + 1)
@@ -133,7 +139,6 @@ busco_pd <- MungNumericMetrics(
 
 gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
   theme_grey(base_family = font_family, base_size = font_size) +
-  # theme_minimal(base_family="Lato", base_size = 16) +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
     strip.text.x = element_text(face = "italic"),
@@ -155,9 +160,16 @@ gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) 
     labeller = labeller(genome_label = label_wrap_gen(width = 8))
   ) +
   geom_col(position = "stack")
+gp
 
-
-ggsave("plot.pdf", gp, width = mm_width, height = mm_height, units = "mm", device = cairo_pdf)
+ggsave(
+  "plot.pdf",
+  gp,
+  width = mm_width,
+  height = mm_height,
+  units = "mm",
+  device = cairo_pdf
+)
 
 #########
 # OMArk #
