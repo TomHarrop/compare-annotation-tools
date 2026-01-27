@@ -76,7 +76,7 @@ rule funannotate_predict:
     threads: 128
     resources:
         mem="230G",
-        runtime=int(3 * 24 * 60),
+        runtime=int(4 * 24 * 60),
     container:
         tools_dict["funannotate"]["container"]
     shell:
