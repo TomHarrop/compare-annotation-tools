@@ -7,7 +7,16 @@ helixer_lineages = tools_dict["helixer"]["lineages"]
 
 
 all_genomes = sorted(set(genomes_dict.keys()))
-all_busco_lineages = sorted(set(gd["busco_lineage"] for gd in genomes_dict.values()))
+busco_lineages = sorted(set(gd["busco_lineage"] for gd in genomes_dict.values()))
+override_busco_lineages = sorted(
+    set(
+        overrides.get("busco_lineage")
+        for gd in genomes_dict.values()
+        for overrides in gd.get("overrides", {}).values()
+    )
+)
+all_busco_lineages = sorted(set(busco_lineages + override_busco_lineages))
+
 all_tools = sorted(set(tools_dict.keys()))
 all_result_files = list(
     rf for td in tools_dict.values() for rf in td.get("result_files", [])
