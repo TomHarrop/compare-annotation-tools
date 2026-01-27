@@ -26,8 +26,7 @@ genomes:
 Pass it to snakmake using the `--configfile` option:
 
 ```bash
-snakemake \
-    --configfile config.yaml
+snakemake --configfile config.yaml
 ```
 
 ## Recommendations
