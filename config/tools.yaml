@@ -41,7 +41,7 @@ utils:
   r: "docker://ghcr.io/tomharrop/r-containers:r2u_24.04_cv1"
 qc:
   annooddities:
-    container: "docker://gemygk/annooddities:v0.1.0"
+    container: "docker://gemygk/annooddities:v0.2.0"
     result_files:
       - "AnnoOddities.tar.gz"
       - "AnnoOddities.gff"

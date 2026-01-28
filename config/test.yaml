@@ -22,6 +22,6 @@ genomes:
     tiberius_model: "Eudicotyledons"
     overrides:
       funannotate:
-        busco_lineage: "eukaryota_odb10"
+        busco_lineage: "viridiplantae_odb10"
 parameters:
-  busco_min_training_models: 10
+  busco_min_training_models: 7
