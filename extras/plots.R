@@ -90,7 +90,7 @@ dt[, result_label := factor(
 dt <- dt[!is.na(result_label)]
 
 # get the labels from the config file
-config_file <- "config/benchmark.yaml"
+config_file <- "config/test.yaml"
 config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
 genome_orders <- sapply(config_yaml$genomes, function(x) x$ncbi_order)
@@ -297,7 +297,7 @@ dt[variable == "Mikado.Stat.Number of genes.Total"]
 # number of genes, mean CDS length, exons per transcript?
 annot_metrics <- c(
   "Mikado.Stat.Exons per transcript.Median" = "Median Exons per transcript",
-  # "Mikado.Stat.CDS lengths.Median" = "Median CDS length",
+  "Mikado.Stat.CDS lengths.Median" = "Median CDS length",
   "Mikado.Stat.Number of genes.Total" = "Total genes"
 )
 
