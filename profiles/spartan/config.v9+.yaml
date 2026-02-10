@@ -39,8 +39,8 @@ set-resources:
     threads: 32
     mem: "256G"
   funannotate_predict:
-    threads: 32
-    mem: "256G"
+    threads: 64
+    mem: "512G"
     sbatch_export: 'APPTAINER_CLEANENV="",APPTAINER_CONTAINALL="",APPTAINER_WRITABLE_TMPFS=""'
 restart-times: 0
 max-jobs-per-second: 50
