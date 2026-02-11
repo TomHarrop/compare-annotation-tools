@@ -64,8 +64,11 @@ phi <- 0.5 * (sqrt(5) + 1)
 mm_width <- grid::convertUnit(grid::unit(textwidth, "pt"), "mm", valueOnly = TRUE)
 mm_height <- mm_width / phi
 
+slide_width <- 254
+slide_height <- 142.9
+
 font_family <- "Atkinson Hyperlegible"
-font_size <- 8
+font_size <- 10
 
 ########
 # MAIN #
@@ -90,7 +93,7 @@ dt[, result_label := factor(
 dt <- dt[!is.na(result_label)]
 
 # get the labels from the config file
-config_file <- "config/test.yaml"
+config_file <- "config/benchmark.yaml"
 config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
 genome_orders <- sapply(config_yaml$genomes, function(x) x$ncbi_order)
@@ -131,7 +134,7 @@ busco_pd <- MungNumericMetrics(
   qc_filename = busco_filename
 )
 
-gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
+busco_gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) +
   theme_grey(base_family = font_family, base_size = font_size) +
   # theme_minimal(base_family="Lato", base_size = 16) +
   theme(
@@ -157,7 +160,23 @@ gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_label)) 
   geom_col(position = "stack")
 
 
-ggsave("plot.pdf", gp, width = mm_width, height = mm_height, units = "mm", device = cairo_pdf)
+ggsave("busco.pdf",
+  busco_gp,
+  width = slide_width,
+  height = slide_height,
+  units = "mm",
+  device = cairo_pdf
+)
+
+
+ggsave("busco.png",
+       busco_gp,
+  width = slide_width,
+  height = slide_height,
+  units = "mm",
+  device = png
+)
+
 
 #########
 # OMArk #
@@ -225,7 +244,7 @@ omark_modified_pd[
   group_variable := factor(group_variable, levels = rev(unique(group_variable)))
 ]
 
-ggplot(
+omark_gp <- ggplot(
   omark_modified_pd[hit_type != "Total"],
   aes(
     x = result_label,
@@ -239,18 +258,20 @@ ggplot(
     cols = vars(genome_label),
     labeller = labeller(genome_label = label_wrap_gen(width = 8))
   ) +
-  theme_grey() +
+  theme_grey(base_family = font_family, base_size = font_size) +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
-    strip.text.x = element_text(face = "italic")
+    strip.text.x = element_text(face = "italic"),
+    legend.key.size = unit(font_size, "pt"),
+    legend.key.justification = "centre",
   ) +
   scale_fill_viridis_d(
     guide = guide_legend(
       title = NULL,
       reverse = TRUE,
+      position = "top",
       override.aes = list(colour = NA)
     ),
-    alpha = 0.8
   ) +
   scale_linetype_manual(
     values = c(2, 3, 0),
@@ -260,6 +281,7 @@ ggplot(
     guide = guide_legend(
       title = NULL,
       override.aes = list(fill = NA),
+      position = "top",
     )
   ) +
   scale_y_continuous(expand = 0) +
@@ -267,6 +289,14 @@ ggplot(
   ylab("%") +
   geom_col(position = "stack", linewidth = 0.5, colour = "black")
 
+
+ggsave("omark.png",
+  omark_gp,
+  width = slide_width,
+  height = slide_height,
+  units = "mm",
+  device = png
+)
 
 # omark conserv is the same as BUSCO, i think?
 omark_conserv_pd <- MungNumericMetrics(
@@ -309,12 +339,13 @@ annot_pd[
 ]
 
 
-ggplot(annot_pd, aes(x = result_label, y = value, fill = result_label)) +
-  theme_minimal() +
+stats_gp <- ggplot(annot_pd, aes(x = result_label, y = value, fill = result_label)) +
+  theme_grey(base_family = font_family, base_size = font_size) +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
     strip.text.x = element_text(face = "italic"),
-    strip.placement = "outside"
+    strip.placement = "outside",
+    strip.background.y = element_blank(),
   ) +
   scale_fill_viridis_d(guide = NULL) +
   scale_y_continuous(expand = 0.025) +
@@ -328,3 +359,12 @@ ggplot(annot_pd, aes(x = result_label, y = value, fill = result_label)) +
     labeller = labeller(genome_label = label_wrap_gen(width = 8))
   ) +
   geom_col(position = "stack")
+
+
+ggsave("stats.png",
+  stats_gp,
+  width = slide_width,
+  height = slide_height,
+  units = "mm",
+  device = png
+)

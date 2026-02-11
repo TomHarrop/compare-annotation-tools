@@ -36,10 +36,10 @@ gpu_node_charge_per_hour <- 512
 # in this script.
 
 tool_order <- c(
-  "braker3.stats.jsonl" = "Braker3",
   "funannotate_predict.stats.jsonl" = "Funannotate",
-  "tiberius.stats.jsonl" = "Tiberius",
-  "helixer.stats.jsonl" = "Helixer"
+  "braker3.stats.jsonl" = "Braker3",
+  "helixer.stats.jsonl" = "Helixer",
+  "tiberius.stats.jsonl" = "Tiberius"
 )
 
 
@@ -63,6 +63,38 @@ if (exists("snakemake")) {} else {
   annotation_stat_files <- all_stat_files[keep]
 }
 
+# Plot config
+textwidth <- 382
+phi <- 0.5 * (sqrt(5) + 1)
+mm_width <- grid::convertUnit(grid::unit(textwidth, "pt"), "mm", valueOnly = TRUE)
+mm_height <- mm_width / phi
+
+slide_width <- 254
+slide_height <- 142.9
+
+font_family <- "Atkinson Hyperlegible"
+font_size <- 10
+
+# TODO: define this somewhere else
+order_order <- c(
+  "Helotiales",
+  "Asparagales",
+  "Poales",
+  "Hymenoptera",
+  "Clupeiformes",
+  "Atheriniformes",
+  "Squamata",
+  "Passeriformes"
+)
+
+order_palette <- viridisLite::magma(length(order_order))
+names(order_palette) <- order_order
+
+
+########
+# MAIN #
+########
+
 # read teh JSON files
 dt <- rbindlist(
   lapply(annotation_stat_files, function(x) {
@@ -77,17 +109,35 @@ dt <- rbindlist(
   fill = TRUE
 )
 
-
 # get the labels from the config file
 config_file <- "config/benchmark.yaml"
 config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
+genome_orders <- sapply(config_yaml$genomes, function(x) x$ncbi_order)
 
-# dt[
-#   , genome_label := plyr::revalue(
-#     plyr::revalue(wildcards.genome, labelled_genomes)
-#   )
-# ]
+
+dt[
+  , genome_label := plyr::revalue(
+    plyr::revalue(wildcards.genome, labelled_genomes)
+  )
+]
+
+dt[, genome_order := factor(
+  plyr::revalue(wildcards.genome, genome_orders),
+  levels = order_order
+)]
+setorder(dt, genome_order)
+dt[, genome_label := factor(genome_label, levels = unique(genome_label))]
+
+# order the colour scale
+order_label_cols <- order_palette[
+  dt[
+    ,
+    as.character(genome_order)[[1]],
+    by = genome_label
+  ][, V1]
+]
+
 
 # Parse the tool names etc.
 dt[
@@ -103,31 +153,46 @@ dt[
   job_su_per_hour := (resources.gpu / gpus_per_node) * gpu_node_charge_per_hour
 ]
 dt[
-  is.na(resources.gpu),
-  job_su_per_hour := node_charge_per_hour * max(c(threads / cpus_per_node, max_pss / (ram_per_node * 1024))),
+  is.na(resources.gpu) | resources.gpu == 0,
+  job_su_per_hour := node_charge_per_hour * max(c(threads / cpus_per_node, `resources.mem_mb` / (ram_per_node * 1024))),
   by = stat_file
 ]
+
 dt[, `Service units (approx.)` := job_su_per_hour * (s / (60 * 60))]
 dt[, `Wall time (h)` := s / (60 * 60)]
 
+
 # calculate resource usage
-dt[, "Peak RAM (GB)" := max_pss / (1024 * 1024)]
+dt[, "Peak RAM (GB)*" := max_pss / (1024)]
+dt[, "CPU (M percent-seconds)" := cpu_usage / (1e6)]
 
 # melt
 pd <- melt(
   dt,
-  id.vars = c("wildcards.genome", "tool_label"),
-  measure.vars = c("Service units (approx.)", "Wall time (h)", "Peak RAM (GB)", "cpu_usage")
+  id.vars = c("genome_label", "tool_label"),
+  measure.vars = c("Service units (approx.)", "Wall time (h)", "Peak RAM (GB)*", "CPU (M percent-seconds)")
 )
 
 # FIXME - just plotting tests for now
-pd <- pd[!startsWith(wildcards.genome, "test")]
+pd <- pd[!startsWith(as.character(genome_label), "test")]
 
-ggplot(pd, aes(x = tool_label, fill = wildcards.genome, y = value)) +
+benchmark_gp <- ggplot(pd, aes(x = tool_label, fill = genome_label, y = value)) +
   facet_grid(variable ~ ., scales = "free_y", switch = "y") +
-  theme_minimal() +
-  theme(strip.placement = "outside") +
-  scale_fill_viridis_d(guide = guide_legend(title = NULL, position = "top")) +
+  theme_grey(base_family = font_family, base_size = font_size) +
+  theme(
+    strip.placement = "outside",
+    strip.background.y = element_blank(),
+  ) +
+  scale_fill_viridis_d(guide = guide_legend(title = NULL)) +
   ylab(NULL) +
   xlab(NULL) +
   geom_col(position = "dodge")
+
+
+ggsave("benchmark.png",
+  benchmark_gp,
+  width = slide_width,
+  height = slide_height,
+  units = "mm",
+  device = png
+)
