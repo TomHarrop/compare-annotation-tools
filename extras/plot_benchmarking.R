@@ -188,7 +188,7 @@ benchmark_gp <- ggplot(pd, aes(x = tool_label, fill = genome_label, y = value)) 
   xlab(NULL) +
   geom_col(position = "dodge")
 
-
+benchmark_gp
 ggsave("benchmark.png",
   benchmark_gp,
   width = slide_width,

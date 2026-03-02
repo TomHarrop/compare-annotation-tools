@@ -159,6 +159,7 @@ busco_gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_la
   ) +
   geom_col(position = "stack")
 
+busco_gp
 
 ggsave("busco.pdf",
   busco_gp,
@@ -360,7 +361,7 @@ stats_gp <- ggplot(annot_pd, aes(x = result_label, y = value, fill = result_labe
   ) +
   geom_col(position = "stack")
 
-
+stats_gp
 ggsave("stats.png",
   stats_gp,
   width = slide_width,
