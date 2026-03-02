@@ -7,7 +7,11 @@ def get_tiberius_model(wildcards):
 
 
 def get_tiberius_softmask_param(wildcards, input):
-    genome_is_softmasked = genomes_dict[wildcards.genome]["softmasked"]
+    genome_config = genomes_dict[wildcards.genome]
+    genome_is_softmasked = (
+        genome_config.get("softmasked", False)
+        or genome_config.get("run_softmasking", False)
+    )
     model_name = Path(input.model).name
     model_disallows_softmasking = model_name in tools_dict["tiberius"]["no_softmasking"]
     if genome_is_softmasked and model_disallows_softmasking:

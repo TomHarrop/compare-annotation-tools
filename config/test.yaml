@@ -23,5 +23,28 @@ genomes:
     overrides:
       funannotate:
         busco_lineage: "viridiplantae_odb10"
+  test_genome_run_softmasking:
+    label: "RepeatMasker test"
+    augustus_dataset_name: "Ptychodera_flava"
+    busco_lineage: "metazoa_odb10"
+    fasta_file: "https://raw.githubusercontent.com/Dfam-consortium/RepeatMasker/refs/heads/master/t/seqs/fastaformat/simple-good-large.fa"
+    helixer_lineage: "invertebrate"
+    taxon_id: 51511
+    tiberius_model: "Sordariomycota"
+    ncbi_order: "Phlebobranchia"
+    run_softmasking: True
+  taxid2792576:
+    label: "Rhynchosporium graminicola"
+    augustus_dataset_name: "botrytis_cinerea"
+    busco_lineage: "helotiales_odb10"
+    fasta_file: "https://usegalaxy.org.au/api/datasets/a6e389a98c2d1678c6c46cb90b87fe92/display?to_ext=fasta"
+    helixer_lineage: "fungi"
+    taxon_id: 2792576
+    tiberius_model: "Sordariomycota"
+    ncbi_order: "Helotiales"
+    run_softmasking: True
+
+
+
 parameters:
   busco_min_training_models: 7

@@ -14,7 +14,7 @@ def annotation_results(genome, tool):
 
 def annotation_tool_input_dict(wildcards):
     my_genome_dict = genomes_dict[wildcards.genome]
-    input_dict = {"fasta": Path("results", "run", "{genome}", "input_genome.fasta")}
+    input_dict = {"fasta": get_genome_fasta(wildcards)}
 
     try:
         logger.info(f"Using RNAseq {my_genome_dict["rnaseq"]}")
@@ -91,6 +91,13 @@ def get_busco_lineage(wildcards):
     return rules.expand_busco_lineage_files.output.busco_lineage.format(
         busco_lineage=busco_lineage
     )
+
+
+def get_genome_fasta(wildcards):
+    genome_config = genomes_dict[wildcards.genome]
+    if genome_config.get("run_softmasking", False):
+        return Path("results", "run", wildcards.genome, "input_genome.masked.fasta")
+    return Path("results", "run", wildcards.genome, "input_genome.fasta")
 
 
 # process the tool_dict to request the output

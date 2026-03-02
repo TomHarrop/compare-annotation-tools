@@ -15,3 +15,9 @@ graph:
 
 
 # 		results/run/taxid3240756/funannotate/predict_results/taxid3240756.gff3
+
+test_softmasking:
+	snakemake \
+		--configfile config/test.yaml \
+		--profile profiles/local \
+		results/run/taxid2792576/input_genome.masked.fasta

@@ -36,7 +36,7 @@ rule rm_mask:
             Path(
                 "results", "run", "{genome}", "repeatmasker", "input_genome.fasta"
             ).as_posix(),
-            ".cat.gz",
+            # ".cat",
             ".masked",
             ".out.gff",
             ".out.html",
@@ -61,8 +61,15 @@ rule rm_mask:
         mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
     container:
         utils["tetools"]
-    script:
-        "../scripts/rm_mask.sh"
+    shell:
+        "cd {params.fa_dir} || exit 1 ; "
+        "RepeatMasker "
+        "-engine ncbi "
+        "-pa {threads} "
+        "-lib {params.lib} "
+        "-gccalc -xsmall -gff -html "
+        "{params.fa} "
+        "&> {log}"
 
 
 rule rm_classify:
@@ -143,16 +150,20 @@ checkpoint rm_model:
         mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
     container:
         utils["tetools"]
-    # NASTY! ignore RM fails
-    shell:
-        "cd {params.fa_dir} || exit 1 && "
-        "RepeatModeler "
-        "-database input_genome "
-        "-engine ncbi "
-        "-threads {threads} "
-        "&> {log} "
-        "|| true ; "
-        "for f in {output}; do touch $( basename $f ) ; done ;"
+    script:
+        "../scripts/rm_model.sh"
+
+
+# NASTY! ignore RM fails
+# shell:
+#     "cd {params.fa_dir} || exit 1 && "
+#     "RepeatModeler "
+#     "-database input_genome "
+#     "-engine ncbi "
+#     "-threads {threads} "
+#     "&> {log} "
+#     "|| true ; "
+#     "for f in {output}; do touch $( basename $f ) ; done ;"
 
 
 rule rm_build:
