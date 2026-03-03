@@ -40,7 +40,7 @@ genomes:
     fasta_file: "https://usegalaxy.org.au/api/datasets/a6e389a98c2d1678c6c46cb90b87fe92/display?to_ext=fasta"
     helixer_lineage: "fungi"
     taxon_id: 2792576
-    tiberius_model: "Sordariomycota"
+    tiberius_model: "Fungi"
     ncbi_order: "Helotiales"
     run_softmasking: True
 

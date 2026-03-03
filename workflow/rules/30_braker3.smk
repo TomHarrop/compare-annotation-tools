@@ -28,6 +28,7 @@ rnaseq_dependent_braker_files = [
 rule braker3:
     input:
         unpack(annotation_tool_input_dict),
+        fasta=get_softmasked_fasta,
     output:
         temp(
             expand(
@@ -45,7 +46,7 @@ rule braker3:
     threads: 128
     resources:
         runtime=int(3 * 24 * 60),
-        mem="230G"
+        mem="230G",
     container:
         tools_dict["braker3"]["container"]
     shadow:

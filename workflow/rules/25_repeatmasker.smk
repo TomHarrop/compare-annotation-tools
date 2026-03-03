@@ -20,7 +20,6 @@ rule rm_target:
         "cp {input} {output}"
 
 
-# TODO: Oops. I put the timeout here but it should be in the modelling steps. Re-do.
 rule rm_mask:
     input:
         cons=Path(
@@ -118,6 +117,12 @@ rule rm_classify:
 # rule. If the size is zero, just use the output from clean_query as the
 # "masked" genome. If it's not zero, use the output of rm_mask (i.e. trigger
 # masking if there are repeats found.)
+#
+#
+# The rm_model script handles timeouts by stopping RepeatModeler 10 minutes
+# before `runtime` expires, and finding the latest round with a completed
+# Stockholm and fasta file. It then elevates these to the output and prints a
+# warning.
 checkpoint rm_model:
     input:
         multiext(
@@ -152,18 +157,6 @@ checkpoint rm_model:
         utils["tetools"]
     script:
         "../scripts/rm_model.sh"
-
-
-# NASTY! ignore RM fails
-# shell:
-#     "cd {params.fa_dir} || exit 1 && "
-#     "RepeatModeler "
-#     "-database input_genome "
-#     "-engine ncbi "
-#     "-threads {threads} "
-#     "&> {log} "
-#     "|| true ; "
-#     "for f in {output}; do touch $( basename $f ) ; done ;"
 
 
 rule rm_build:

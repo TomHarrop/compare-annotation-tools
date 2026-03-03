@@ -46,9 +46,10 @@ rule collect_funannotate_result:
 # log that to an env file before we start.
 rule funannotate_predict:
     wildcard_constraints:
-        tool="funannotate"
+        tool="funannotate",
     input:
         unpack(annotation_tool_input_dict),
+        fasta=get_softmasked_fasta,
         db=rules.funannotate_setup.output,
         gm_key=Path("data", "gm_key_64"),
         busco_lineage=get_busco_lineage,
@@ -57,7 +58,9 @@ rule funannotate_predict:
             Path("results", "run", "{genome}", "{tool}", "predict_results", x)
             for x in predict_result_files
         ),
-        predict_misc=directory(Path("results", "run", "{genome}", "{tool}", "predict_misc")),
+        predict_misc=directory(
+            Path("results", "run", "{genome}", "{tool}", "predict_misc")
+        ),
     params:
         busco_lineage_name=subpath(input.busco_lineage, basename=True),
         busco_seed_species=lambda wildcards: genomes_dict[wildcards.genome][
@@ -102,7 +105,7 @@ rule funannotate_predict:
         "--repeats2evm "
         "{params.rnaseq} "
         "&> {log.log}"
-        # FIXME - this is to ignore unmasked genomes
+        
 
 
 # TODO, only run this if there is RNAseq data

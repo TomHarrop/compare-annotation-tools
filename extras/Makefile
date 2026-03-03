@@ -20,4 +20,4 @@ test_softmasking:
 	snakemake \
 		--configfile config/test.yaml \
 		--profile profiles/local \
-		results/run/taxid2792576/input_genome.masked.fasta
+		taxid2792576_target -n

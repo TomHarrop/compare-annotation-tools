@@ -1,34 +1,49 @@
 #!/usr/bin/env python3
 
 
+def check_if_tiberius_model_requires_softmasking(model_path):
+    model_name = model_path.name
+    return model_name in tools_dict["tiberius"]["requires_softmasking"]
+
+
+def get_tiberius_fasta(wildcards):
+    model_path = get_tiberius_model(wildcards)
+    requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
+    if requires_softmasking:
+        return get_softmasked_fasta(wildcards)
+    return get_unmasked_fasta(wildcards)
+
+
 def get_tiberius_model(wildcards):
     tiberius_model = genomes_dict[wildcards.genome]["tiberius_model"]
     return Path("resources", "tiberius_models", tiberius_model)
 
 
-def get_tiberius_softmask_param(wildcards, input):
-    genome_config = genomes_dict[wildcards.genome]
-    genome_is_softmasked = (
-        genome_config.get("softmasked", False)
-        or genome_config.get("run_softmasking", False)
-    )
-    model_name = Path(input.model).name
-    model_disallows_softmasking = model_name in tools_dict["tiberius"]["no_softmasking"]
-    if genome_is_softmasked and model_disallows_softmasking:
-        return "--no_softmasking"
-    else:
-        return ""
+# TODO: The softmasking param is backwards. Models that *require* softmasking
+# need to be designated in the config. These models should only be run against
+# masked genomes.
+# https://github.com/Gaius-Augustus/Tiberius?tab=readme-ov-file#choosing-the-model-weights.
+# def get_tiberius_softmask_param(wildcards, input):
+#     genome_config = genomes_dict[wildcards.genome]
+#     genome_is_softmasked = genome_config.get("softmasked", False) or genome_config.get(
+#         "run_softmasking", False
+#     )
+#     requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
+#     if genome_is_softmasked and model_disallows_softmasking:
+#         return "--no_softmasking"
+#     else:
+#         return ""
 
 
 rule tiberius:
     input:
-        unpack(annotation_tool_input_dict),
+        fasta=get_tiberius_fasta,
         model=get_tiberius_model,
     output:
         gtf=Path("results", "run", "{genome}", "tiberius", "tiberius.gtf"),
     params:
         batch_size=16,
-        softmask_param=get_tiberius_softmask_param,
+        # softmask_param=get_tiberius_softmask_param,
     log:
         Path("logs", "{genome}", "tiberius", "tiberius.log"),
     benchmark:
@@ -45,8 +60,8 @@ rule tiberius:
         "--model {input.model} "
         "--out {output.gtf} "
         "--batch_size {params.batch_size} "
-        "{params.softmask_param} "
         "&> {log}"
+        # "{params.softmask_param} "
 
 
 rule expand_tiberius_model:
