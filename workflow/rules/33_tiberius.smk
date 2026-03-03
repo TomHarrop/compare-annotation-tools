@@ -19,20 +19,19 @@ def get_tiberius_model(wildcards):
     return Path("resources", "tiberius_models", tiberius_model)
 
 
-# TODO: The softmasking param is backwards. Models that *require* softmasking
+# TODO: The softmasking param is confusing. Models that *require* softmasking
 # need to be designated in the config. These models should only be run against
 # masked genomes.
-# https://github.com/Gaius-Augustus/Tiberius?tab=readme-ov-file#choosing-the-model-weights.
-# def get_tiberius_softmask_param(wildcards, input):
-#     genome_config = genomes_dict[wildcards.genome]
-#     genome_is_softmasked = genome_config.get("softmasked", False) or genome_config.get(
-#         "run_softmasking", False
-#     )
-#     requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
-#     if genome_is_softmasked and model_disallows_softmasking:
-#         return "--no_softmasking"
-#     else:
-#         return ""
+#
+# If you try to run a non-softmasked model, you get the following message (even
+# with a soft-masked genome).
+# This appears to be a softmasking compatibility issue.
+# The model was trained without softmasking, but inference is running with softmasking enabled.
+# SOLUTION: Add the '--no_softmasking' flag to your command, or use a model trained with softmasking.
+def get_tiberius_softmask_param(wildcards, input):
+    model_path = get_tiberius_model(wildcards)
+    requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
+    return "" if requires_softmasking else "--no_softmasking"
 
 
 rule tiberius:
@@ -43,7 +42,7 @@ rule tiberius:
         gtf=Path("results", "run", "{genome}", "tiberius", "tiberius.gtf"),
     params:
         batch_size=16,
-        # softmask_param=get_tiberius_softmask_param,
+        softmask_param=get_tiberius_softmask_param,
     log:
         Path("logs", "{genome}", "tiberius", "tiberius.log"),
     benchmark:
@@ -60,8 +59,8 @@ rule tiberius:
         "--model {input.model} "
         "--out {output.gtf} "
         "--batch_size {params.batch_size} "
+        "{params.softmask_param} "
         "&> {log}"
-        # "{params.softmask_param} "
 
 
 rule expand_tiberius_model:

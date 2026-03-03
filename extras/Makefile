@@ -20,4 +20,4 @@ test_softmasking:
 	snakemake \
 		--configfile config/test.yaml \
 		--profile profiles/local \
-		taxid2792576_target -n
+		results/run/taxid2792576/tiberius/tiberius.gtf -n
