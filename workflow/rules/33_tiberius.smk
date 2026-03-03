@@ -19,15 +19,17 @@ def get_tiberius_model(wildcards):
     return Path("resources", "tiberius_models", tiberius_model)
 
 
-# TODO: The softmasking param is confusing. Models that *require* softmasking
-# need to be designated in the config. These models should only be run against
-# masked genomes.
+# The softmasking param is confusing. Models that *require* softmasking need to
+# be designated in the config. These models should only be run against masked
+# genomes.
 #
 # If you try to run a non-softmasked model, you get the following message (even
 # with a soft-masked genome).
-# This appears to be a softmasking compatibility issue.
-# The model was trained without softmasking, but inference is running with softmasking enabled.
-# SOLUTION: Add the '--no_softmasking' flag to your command, or use a model trained with softmasking.
+#
+# This appears to be a softmasking compatibility issue. The model was trained
+# without softmasking, but inference is running with softmasking enabled.
+# SOLUTION: Add the '--no_softmasking' flag to your command, or use a model
+# trained with softmasking.
 def get_tiberius_softmask_param(wildcards, input):
     model_path = get_tiberius_model(wildcards)
     requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)

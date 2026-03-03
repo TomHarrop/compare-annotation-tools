@@ -16,9 +16,10 @@ genomes:
     helixer_lineage: "land_plant"
     label: "Arabidopsis fragment"
     lineage: "embryophyta_odb10"
-    ncbi_family: "Brassicales"
+    ncbi_order: "Asparagales"
     rnaseq: "test-data/RNAseq.bam"
-    softmasked: True
+    run_softmasking: True
+    softmasked: False
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
 ```
@@ -64,6 +65,13 @@ lineage for `funannotate` in the config, like this:
         busco_lineage: "viridiplantae_odb10"
 ```
 
+## Overview
+
+Runs the following steps.
+
+![Workflow graph](assets/graph.png)
+
+
 ## TODO
 
 - [ ] **REMOVE `05_smk_hack`**
@@ -71,13 +79,13 @@ lineage for `funannotate` in the config, like this:
 - [x] handle remote genomes
   - [x] FIXME - currently assuming all downloaded genomes are fasta.gz
 - [x] GPU resources - fill in the partitionflag and exclusive using yte
-- [ ] collect stats
-- [ ] collate resource usage
+- [x] collect stats
+- [x] collate resource usage
 - [ ] implement annotation tools:
   - [x] tiberius
     - [x] add all the models
   - [x] helixer
-    - [ ] collate RAM usage for resources
+    - [x] collate RAM usage for resources
   - [ ] annevo
   - [x] funannotate
-    - [ ] remove `--force` option for unmasked genomes
+    - [x] remove `--force` option for unmasked genomes
