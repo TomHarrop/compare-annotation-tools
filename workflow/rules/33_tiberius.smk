@@ -1,24 +1,44 @@
 #!/usr/bin/env python3
 
 
+def check_if_tiberius_model_requires_softmasking(model_path):
+    model_name = model_path.name
+    return model_name in tools_dict["tiberius"]["requires_softmasking"]
+
+
+def get_tiberius_fasta(wildcards):
+    model_path = get_tiberius_model(wildcards)
+    requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
+    if requires_softmasking:
+        return get_softmasked_fasta(wildcards)
+    return get_unmasked_fasta(wildcards)
+
+
 def get_tiberius_model(wildcards):
     tiberius_model = genomes_dict[wildcards.genome]["tiberius_model"]
     return Path("resources", "tiberius_models", tiberius_model)
 
 
+# The softmasking param is confusing. Models that *require* softmasking need to
+# be designated in the config. These models should only be run against masked
+# genomes.
+#
+# If you try to run a non-softmasked model, you get the following message (even
+# with a soft-masked genome).
+#
+# This appears to be a softmasking compatibility issue. The model was trained
+# without softmasking, but inference is running with softmasking enabled.
+# SOLUTION: Add the '--no_softmasking' flag to your command, or use a model
+# trained with softmasking.
 def get_tiberius_softmask_param(wildcards, input):
-    genome_is_softmasked = genomes_dict[wildcards.genome]["softmasked"]
-    model_name = Path(input.model).name
-    model_disallows_softmasking = model_name in tools_dict["tiberius"]["no_softmasking"]
-    if genome_is_softmasked and model_disallows_softmasking:
-        return "--no_softmasking"
-    else:
-        return ""
+    model_path = get_tiberius_model(wildcards)
+    requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
+    return "" if requires_softmasking else "--no_softmasking"
 
 
 rule tiberius:
     input:
-        unpack(annotation_tool_input_dict),
+        fasta=get_tiberius_fasta,
         model=get_tiberius_model,
     output:
         gtf=Path("results", "run", "{genome}", "tiberius", "tiberius.gtf"),

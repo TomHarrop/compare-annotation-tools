@@ -14,7 +14,7 @@ def annotation_results(genome, tool):
 
 def annotation_tool_input_dict(wildcards):
     my_genome_dict = genomes_dict[wildcards.genome]
-    input_dict = {"fasta": Path("results", "run", "{genome}", "input_genome.fasta")}
+    input_dict = {}
 
     try:
         logger.info(f"Using RNAseq {my_genome_dict["rnaseq"]}")
@@ -93,10 +93,27 @@ def get_busco_lineage(wildcards):
     )
 
 
+def get_softmasked_fasta(wildcards):
+    genome_config = genomes_dict[wildcards.genome]
+    if genome_config.get("run_softmasking", False):
+        return Path("results", "run", wildcards.genome, "input_genome.masked.fasta")
+    elif genome_config.get("softmasked", False):
+        return Path("results", "run", wildcards.genome, "input_genome.fasta")
+    else:
+        raise ValueError(
+            f"Genome '{wildcards.genome}' has no softmasked FASTA available. "
+            f"Set 'softmasked: true' or 'run_softmasking: true'."
+        )
+
+
 # process the tool_dict to request the output
 def get_tool_result_files(tool):
     tool_data = tools_dict.get(tool)
     return tool_data.get("result_files")
+
+
+def get_unmasked_fasta(wildcards):
+    return Path("results", "run", wildcards.genome, "input_genome.fasta")
 
 
 def get_qc_result_files(qc_tool):
@@ -142,3 +159,11 @@ def stats_results(genome, tool):
         for stats_file in stats_files:
             stats_output_files.append(stats_file)
     return stats_output_files
+
+
+def softmasked_genome_available(genome_name):
+    """Check whether a softmasked genome will be available at runtime."""
+    genome_config = genomes_dict[genome_name]
+    return genome_config.get("softmasked", False) or genome_config.get(
+        "run_softmasking", False
+    )

@@ -14,18 +14,18 @@ tools:
       - "land_plant"
       - "vertebrate"
   tiberius:
-    container: "docker://larsgabriel23/tiberius@sha256:9d24469611264ca55b5ef14a4708e632f0f6f7c11c97304ccf9cc4993d3560dd"
+    container: "docker://larsgabriel23/tiberius:1.1.8"
     result_files:
       - "tiberius.gtf"
     models: # note the Vertebrates model requires non-softmasked genomes. See https://github.com/Gaius-Augustus/Tiberius/tree/main/model_cfg
       Eudicotyledons: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/eudicotyledons_weights.tar.gz"
-      Lepidoptera: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/lepidoptera_weights.tar.gz"
+      Insecta: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/insecta_unmasked_v2.tar.gz"
       Monocotyledonae: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/monocotyledonae_weights.tar.gz"
-      Sordariomycota: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/sordariomycota_weights.tar.gz" # rhynco
+      Fungi: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/fungi.tar.gz" # rhynco
       Vertebrates: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/vertebrates_weights.tar.gz"
-      Insecta: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/insecta_weights.tar.gz"
-    no_softmasking:
-      - Vertebrates
+    requires_softmasking:
+      - Eudicotyledons
+      - Monocotyledonae
   funannotate:
     container: "docker://ghcr.io/tomharrop/container-funannotate:1.8.17_cv6"
     result_files:
@@ -36,9 +36,10 @@ tools:
 utils:
   bbmap: "docker://quay.io/biocontainers/bbmap:39.01--h92535d8_1"
   debian: "docker://debian:stable-20250113"
-  samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"
-  wget: "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
   r: "docker://ghcr.io/tomharrop/r-containers:r2u_24.04_cv1"
+  samtools: "docker://quay.io/biocontainers/samtools:1.23--h96c455f_0"
+  tetools: "docker://dfam/tetools:1.95"
+  wget: "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
 qc:
   annooddities:
     container: "docker://gemygk/annooddities:v0.2.0"
