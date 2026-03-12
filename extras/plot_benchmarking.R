@@ -178,8 +178,10 @@ pd <- melt(
 
 # FIXME - just plotting tests for now
 pd <- pd[!startsWith(as.character(genome_label), "test")]
+benchmark_pd <- pd[!startsWith(as.character(tool_label), "Repeat")]
+rm_pd <- pd[startsWith(as.character(tool_label), "Repeat")]
 
-benchmark_gp <- ggplot(pd, aes(x = tool_label, fill = genome_label, y = value)) +
+benchmark_gp <- ggplot(benchmark_pd, aes(x = tool_label, fill = genome_label, y = value)) +
   facet_grid(variable ~ ., scales = "free_y", switch = "y") +
   theme_grey(base_family = font_family, base_size = font_size) +
   theme(
@@ -194,6 +196,28 @@ benchmark_gp <- ggplot(pd, aes(x = tool_label, fill = genome_label, y = value)) 
 benchmark_gp
 ggsave("benchmark.png",
   benchmark_gp,
+  width = slide_width,
+  height = slide_height,
+  units = "mm",
+  device = png
+)
+
+
+rm_gp <- ggplot(rm_pd, aes(x = tool_label, fill = genome_label, y = value)) +
+  facet_grid(variable ~ ., scales = "free_y", switch = "y") +
+  theme_grey(base_family = font_family, base_size = font_size) +
+  theme(
+    strip.placement = "outside",
+    strip.background.y = element_blank(),
+  ) +
+  scale_fill_viridis_d(guide = guide_legend(title = NULL)) +
+  ylab(NULL) +
+  xlab(NULL) +
+  geom_col(position = "dodge")
+
+rm_gp
+ggsave("repeatmasker.png",
+  rm_gp,
   width = slide_width,
   height = slide_height,
   units = "mm",
