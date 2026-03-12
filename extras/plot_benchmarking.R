@@ -39,7 +39,9 @@ tool_order <- c(
   "funannotate_predict.stats.jsonl" = "Funannotate",
   "braker3.stats.jsonl" = "Braker3",
   "helixer.stats.jsonl" = "Helixer",
-  "tiberius.stats.jsonl" = "Tiberius"
+  "tiberius.stats.jsonl" = "Tiberius",
+  "rm_model.stats.jsonl" = "RepeatModeler",
+  "rm_mask.stats.jsonl" = "RepeatMasker"
 )
 
 
@@ -83,6 +85,7 @@ order_order <- c(
   "Hymenoptera",
   "Clupeiformes",
   "Atheriniformes",
+  "Centrarchiformes",
   "Squamata",
   "Passeriformes"
 )

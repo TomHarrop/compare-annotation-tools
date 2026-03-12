@@ -51,6 +51,7 @@ order_order <- c(
   "Hymenoptera",
   "Clupeiformes",
   "Atheriniformes",
+  "Centrarchiformes",
   "Squamata",
   "Passeriformes"
 )
@@ -163,7 +164,6 @@ busco_gp <- ggplot(busco_pd, aes(x = result_label, y = value, fill = variable_la
     labeller = labeller(genome_label = label_wrap_gen(width = 8))
   ) +
   geom_col(position = "stack")
-gp
 
 busco_gp
 
