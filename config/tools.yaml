@@ -17,7 +17,7 @@ tools:
     container: "docker://larsgabriel23/tiberius:1.1.8"
     result_files:
       - "tiberius.gtf"
-    models: # note the Vertebrates model requires non-softmasked genomes. See https://github.com/Gaius-Augustus/Tiberius/tree/main/model_cfg
+    models:
       Eudicotyledons: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/eudicotyledons_weights.tar.gz"
       Insecta: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/insecta_unmasked_v2.tar.gz"
       Monocotyledonae: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/monocotyledonae_weights.tar.gz"
@@ -49,7 +49,7 @@ qc:
       - "AnnoOddities.combined_statistics.json"
       - "AnnoOddities.oddity_summary.txt"
   atol_qc_annotation:
-    container: "docker://quay.io/biocontainers/atol-qc-annotation:0.1.4--pyhdfd78af_0"
+    container: "docker://quay.io/biocontainers/atol-qc-annotation:0.1.4--pyhdfd78af_1"
     result_files:
       - "omark_summary.json"
       - "proteins.faa"

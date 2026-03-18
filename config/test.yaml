@@ -1,7 +1,7 @@
 genomes:
   test_genome_without_rnaseq:
     augustus_dataset_name: "cacao"
-    busco_lineage: "embryophyta_odb10"
+    busco_lineage: "embryophyta_odb12"
     fasta_file: "test-data/genome.fa.gz"
     helixer_lineage: "land_plant"
     label: "Arabidopsis fragment"
@@ -9,6 +9,9 @@ genomes:
     softmasked: True
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
+    overrides:
+      funannotate:
+        busco_lineage: "embryophyta_odb10"
   test_genome_with_rnaseq:
     augustus_dataset_name: "cacao"
     busco_lineage: "embryophyta_odb10"
@@ -30,7 +33,7 @@ genomes:
     fasta_file: "https://raw.githubusercontent.com/Dfam-consortium/RepeatMasker/refs/heads/master/t/seqs/fastaformat/simple-good-large.fa"
     helixer_lineage: "invertebrate"
     taxon_id: 51511
-    tiberius_model: "Sordariomycota"
+    tiberius_model: "Fungi"
     ncbi_order: "Phlebobranchia"
     run_softmasking: True
   taxid2792576:

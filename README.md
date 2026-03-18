@@ -32,6 +32,17 @@ snakemake --configfile config.yaml
 
 ## Recommendations
 
+### Softmasking
+
+- Braker and funannotate require softmasked genomes.
+- Helixer and **generally** don't require softmasked genomes.
+  - The exception is if models were trained on softmasked genomes, like the
+    [Eudicotyledons and Monocotyledonae Tiberius
+    models](https://github.com/Gaius-Augustus/Tiberius/tree/main/model_cfg#1--list-of-current-model-weights)
+- Helixer and Tiberius models for un-masked genomes [can be used with
+  soft-masked
+  genomes](https://github.com/gaius-Augustus/tiberius?tab=readme-ov-file#choosing-the-model-weights).
+
 ### BUSCO lineage for `funannotate`
 
 Choosing the right BUSCO lineage for `funannotate` (`--busco_db` option) seems
@@ -52,8 +63,10 @@ Sometimes it fails like this:
 ```
 
 Neither error happens every time for a given lineage so it's probably caused by
-certain combinations of genome and lineage. It's possible to override the BUSCO
-lineage for `funannotate` in the config, like this:
+certain combinations of genome and lineage. BUSCO DBs that work for QC on the
+raw genome can fail in `funannotate`, so BUSCO version may be a factor too.
+It's possible to override the BUSCO lineage for `funannotate` in the config,
+like this:
 
 ```yaml
   test_genome:
@@ -64,6 +77,24 @@ lineage for `funannotate` in the config, like this:
       funannotate:
         busco_lineage: "viridiplantae_odb10"
 ```
+
+#### ODB12
+
+ODB12 databases are incompadible with funannotate as of version 1.8.17.
+
+To use an ODB12 database for QC and an ODB10 database for funnanotate, use the `overrides:` setting.
+
+```yaml
+  test_genome:
+    busco_lineage: "embryophyta_odb12"
+    fasta_file: "test-data/genome.fa.gz"
+    taxon_id: 3702
+    overrides:
+      funannotate:
+        busco_lineage: "embryophyta_odb10"
+```
+
+
 
 ## Overview
 
