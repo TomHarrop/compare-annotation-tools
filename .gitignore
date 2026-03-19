@@ -1,0 +1,11 @@
+.RData
+.Rhistory
+.Rproj.user
+.Ruserdata
+.snakemake/
+*.Rproj
+data/
+logs/
+resources/
+results/
+test-data
