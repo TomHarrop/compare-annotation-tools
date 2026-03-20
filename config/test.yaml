@@ -6,6 +6,7 @@ genomes:
     helixer_lineage: "land_plant"
     label: "Arabidopsis fragment"
     ncbi_family: "Brassicales"
+    orthodb_division: "Viridiplantae"
     softmasked: True
     taxon_id: 3702
     tiberius_model: "Eudicotyledons"
@@ -19,6 +20,7 @@ genomes:
     helixer_lineage: "land_plant"
     label: "Arabidopsis fragment with RNAseq"
     ncbi_family: "Brassicales"
+    orthodb_division: "Viridiplantae"
     rnaseq: "test-data/RNAseq.bam"
     softmasked: True
     taxon_id: 3702
@@ -35,6 +37,7 @@ genomes:
     taxon_id: 51511
     tiberius_model: "Fungi"
     ncbi_order: "Phlebobranchia"
+    orthodb_division: "Fungi"
     run_softmasking: True
   taxid2792576:
     label: "Rhynchosporium graminicola"
@@ -45,9 +48,7 @@ genomes:
     taxon_id: 2792576
     tiberius_model: "Fungi"
     ncbi_order: "Helotiales"
+    orthodb_division: "Fungi"
     run_softmasking: True
-
-
-
 parameters:
   busco_min_training_models: 7

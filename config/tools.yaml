@@ -4,6 +4,13 @@ tools:
     result_files:
       - "braker.gff3"
       - "braker.gtf"
+    orthodb_divisions:
+      Arthropoda: "https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/Arthropoda.fa.gz"
+      Eukaryota: "https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/Eukaryota.fa.gz"
+      Fungi: "https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/Fungi.fa.gz"
+      Metazoa: "https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/Metazoa.fa.gz"
+      Vertebrata: "https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/Vertebrata.fa.gz"
+      Viridiplantae: "https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/Viridiplantae.fa.gz"
   helixer:
     container: "docker://ghcr.io/tomharrop/container-helixer:helixer_v0.3.6_cuda_12.2.2-cudnn8_cv2"
     result_files:

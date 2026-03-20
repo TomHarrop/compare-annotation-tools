@@ -4,7 +4,7 @@ utils = config["utils"]
 qc_tools_dict = config["qc"]
 tiberius_models = tools_dict["tiberius"]["models"].keys()
 helixer_lineages = tools_dict["helixer"]["lineages"]
-
+orthodb_divisions = tools_dict["braker3"]["orthodb_divisions"]
 
 all_genomes = sorted(set(genomes_dict.keys()))
 busco_lineages = sorted(set(gd["busco_lineage"] for gd in genomes_dict.values()))
@@ -52,6 +52,7 @@ wildcard_constraints:
     busco_lineage="|".join(all_busco_lineages),
     genome="|".join(all_genomes),
     helixer_lineage="|".join(helixer_lineages),
+    orthodb_division="|".join(orthodb_divisions),
     qc_file="|".join(qc_result_files),
     result_file="|".join(all_result_files),
     tiberius_model="|".join(tiberius_models),
