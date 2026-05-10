@@ -25,7 +25,6 @@ predict_result_files = [
 
 
 rule collect_funannotate_result:
-    localrule: True
     input:
         gff=Path(
             "results",
@@ -37,6 +36,7 @@ rule collect_funannotate_result:
         ),
     output:
         gff=Path("results", "run", "{genome}", "funannotate", "funannotate.gff3"),
+    localrule: True
     shell:
         "cp {input} {output}"
 
@@ -45,8 +45,6 @@ rule collect_funannotate_result:
 # needs the full path to the DB. Since it has trouble with the environment, we
 # log that to an env file before we start.
 rule funannotate_predict:
-    wildcard_constraints:
-        tool="funannotate",
     input:
         unpack(annotation_tool_input_dict),
         fasta=get_softmasked_fasta,
@@ -61,6 +59,19 @@ rule funannotate_predict:
         predict_misc=directory(
             Path("results", "run", "{genome}", "{tool}", "predict_misc")
         ),
+    log:
+        log=Path("logs", "{genome}", "{tool}", "funannotate_predict.log"),
+        env=Path("logs", "{genome}", "{tool}", "funannotate_predict.env"),
+    benchmark:
+        Path("logs", "{genome}", "{tool}", "funannotate_predict.stats.jsonl")
+    wildcard_constraints:
+        tool="funannotate",
+    container:
+        tools_dict["funannotate"]["container"]
+    threads: 128
+    resources:
+        mem="230G",
+        runtime=int(4 * 24 * 60),
     params:
         busco_lineage_name=subpath(input.busco_lineage, basename=True),
         busco_seed_species=lambda wildcards: genomes_dict[wildcards.genome][
@@ -73,20 +84,9 @@ rule funannotate_predict:
         min_training_models=config["parameters"]["busco_min_training_models"],
         outdir=lambda wildcards, output: Path(subpath(output[0], ancestor=2)).resolve(),
         rnaseq=funannotate_rnaseq_param,
-    log:
-        log=Path("logs", "{genome}", "{tool}", "funannotate_predict.log"),
-        env=Path("logs", "{genome}", "{tool}", "funannotate_predict.env"),
-    benchmark:
-        Path("logs", "{genome}", "{tool}", "funannotate_predict.stats.jsonl")
-    threads: 128
-    resources:
-        mem="230G",
-        runtime=int(4 * 24 * 60),
-    container:
-        tools_dict["funannotate"]["container"]
     shell:
         "env &> {log.env} && "
-        "mkdir -p {output.predict_misc}/tmp_opt_{wildcards.genome} && " # see https://github.com/nextgenusfs/funannotate/pull/1149
+        "mkdir -p {output.predict_misc}/tmp_opt_{wildcards.genome} && "  # see https://github.com/nextgenusfs/funannotate/pull/1149
         'header_length=$( grep "^>" {input.fasta} | wc -L ) ; '
         "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "
@@ -105,7 +105,6 @@ rule funannotate_predict:
         "--repeats2evm "
         "{params.rnaseq} "
         "&> {log.log}"
-        
 
 
 # TODO, only run this if there is RNAseq data

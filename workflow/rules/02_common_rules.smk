@@ -14,7 +14,11 @@ def get_fasta(wildcards):
         return my_genome
 
     if my_genome.startswith("http://") or my_genome.startswith("https://"):
-        return Path("resources", "{genome}", "input_genome")
+        return Path("resources", "http", "{genome}", "input_genome")
+
+    if my_genome.startswith("s3://"):
+
+        return Path("resources", "s3", "{genome}", "input_genome")
 
     raise ValueError(f"Couldn't get FASTA file {my_genome}, check config.")
 
@@ -25,18 +29,18 @@ rule collect_fasta_file:
         get_fasta,
     output:
         Path("results", "run", "{genome}", "input_genome.fasta"),
-    params:
-        mem_pct=95,  # amount to assign to java
-        format=lambda wildcards, input: check_format(input[0]),
     log:
         Path("logs", "{genome}", "collect_fasta_file.log"),
     benchmark:
         Path("logs", "{genome}", "collect_fasta_file.stats.jsonl")
     retries: 2
-    resources:
-        mem=lambda wildcards, attempt: f"{int(2**(attempt+1))}GB",
     container:
         utils["bbmap"]
+    resources:
+        mem=lambda wildcards, attempt: f"{int(2**(attempt+1))}GB",
+    params:
+        mem_pct=95,  # amount to assign to java
+        format=lambda wildcards, input: check_format(input[0]),
     shell:
         "mem_mb=$(( {resources.mem_mb} * {params.mem_pct} / 100 )) ; "
         "cat {input}  "
@@ -55,15 +59,50 @@ rule collect_fasta_file:
 # bind path for Apptainer.
 rule download_remote_fasta:
     output:
-        temp(Path("resources", "{genome}", "input_genome")),
-    params:
-        url=lambda wildcards: genomes_dict[wildcards.genome]["fasta_file"],
+        temp(Path("resources", "http", "{genome}", "input_genome")),
     log:
         Path("logs", "download_remote_fasta", "{genome}.log"),
-    resources:
-        runtime=lambda wildcards, attempt: int(attempt * 10),
     retries: 2
     container:
         utils["wget"]
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 10),
+    params:
+        url=lambda wildcards: genomes_dict[wildcards.genome]["fasta_file"],
     shell:
         "wget -O {output} {params.url} &> {log}"
+
+
+rule download_s3_fasta:
+    output:
+        s3_fasta=temp(Path("resources", "s3", "{genome}", "input_genome")),
+    log:
+        Path("logs", "download_s3_fasta", "{genome}.log"),
+    retries: 2
+    container:
+        utils["rclone"]
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 180),
+        shell_exec="sh",
+    params:
+        s3_access_key_id=os.getenv("RCLONE_S3_ACCESS_KEY_ID"),
+        s3_endpoint=os.getenv("RCLONE_S3_ENDPOINT"),
+        s3_provider=os.getenv("RCLONE_S3_PROVIDER", "Ceph"),
+        s3_secret_access_key=os.getenv("RCLONE_S3_SECRET_ACCESS_KEY"),
+        url=lambda wildcards: genomes_dict[wildcards.genome]["fasta_file"],
+        outdir=subpath(output.s3_fasta, parent=True),
+        filename=lambda wildcards: Path(
+            genomes_dict[wildcards.genome]["fasta_file"]
+        ).name,
+    shell:
+        "rclone "
+        "--s3-access-key-id {params.s3_access_key_id} "
+        "--s3-endpoint {params.s3_endpoint} "
+        "--s3-provider {params.s3_provider} "
+        "--s3-secret-access-key {params.s3_secret_access_key} "
+        "copy "
+        ":{params.url} "
+        "{params.outdir} "
+        "&> {log} "
+        "&& "
+        "mv {params.outdir}/{params.filename} {output}"

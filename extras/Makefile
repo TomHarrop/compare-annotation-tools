@@ -1,9 +1,15 @@
 
+export RCLONE_S3_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+export RCLONE_S3_ENDPOINT="https://projects.pawsey.org.au"
+export RCLONE_S3_PROVIDER="Ceph"
+export RCLONE_S3_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+
 test:
 	snakemake \
-		--configfile config/benchmark.yaml \
+		--configfile config/benchmark.v2.yaml \
 		--profile profiles/local \
-		--keep-going
+		--keep-going \
+		results/run/gyRhyGra1.2/input_genome.fasta
 
 test_braker_proteins:
 	snakemake \

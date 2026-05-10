@@ -34,11 +34,11 @@ include: "rules/50_collate_stats.smk"
 
 
 rule collect_annotation:
-    localrule: True
     input:
         result_file=Path("results", "run", "{genome}", "{tool}", "{result_file}"),
     output:
         result_file=Path("results", "{genome}", "{tool}", "annotation", "{result_file}"),
+    localrule: True
     shell:
         "cp {input.result_file} {output.result_file}"
 
