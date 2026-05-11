@@ -9,7 +9,11 @@ test:
 		--configfile config/benchmark.v2.yaml \
 		--profile profiles/local \
 		--keep-going \
-		results/run/gyRhyGra1.2/tiberius/tiberius.gtf
+		--forceall \
+		resources/s3/gyRhyGra1.2/input_genome
+
+
+# 		results/run/gyRhyGra1.2/tiberius/tiberius.gtf
 
 test_braker_proteins:
 	snakemake \

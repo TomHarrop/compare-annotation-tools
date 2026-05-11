@@ -1,5 +1,19 @@
 ---
-executor: cluster-generic
+apptainer-args: -B $PWD,$TMPDIR,/data
+  --nv
+  -H $(mktemp -d)
+  --pwd $PWD
+  --env TMPDIR=/tmp
+  --env LC_ALL=C
+  --env RCLONE_S3_ACCESS_KEY_ID=${RCLONE_S3_ACCESS_KEY_ID}
+  --env RCLONE_S3_ENDPOINT=${RCLONE_S3_ENDPOINT}
+  --env RCLONE_S3_PROVIDER=${RCLONE_S3_PROVIDER}
+  --env RCLONE_S3_SECRET_ACCESS_KEY=${RCLONE_S3_SECRET_ACCESS_KEY}
+apptainer-prefix: $APPTAINER_CACHEDIR
+benchmark-extended: True
+cores: 50
+cluster-generic-cancel-cmd: scancel
+cluster-generic-status-cmd: status-sacct-robust.sh
 cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   sbatch
   "--export={resources.sbatch_export} "
@@ -13,8 +27,6 @@ cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   --output=logs/slurm/{rule}/{rule}-%j.out
   --parsable
   --gpus={resources.gpu}
-cluster-generic-status-cmd: status-sacct-robust.sh
-cluster-generic-cancel-cmd: scancel
 default-resources:
   - partitionFlag=""
   - exclusive=""
@@ -22,6 +34,19 @@ default-resources:
   - runtime=5
   - gpu=0
   - sbatch_export="APPTAINER_CLEANENV=true,APPTAINER_CONTAINALL=true,APPTAINER_WRITABLE_TMPFS=true"
+executor: cluster-generic
+jobs: 128
+keep-going: true
+keep-storage-local-copies: true
+latency-wait: 60
+local-cores: 2
+max-jobs-per-second: 50
+max-status-checks-per-second: 10
+printshellcmds: true
+rerun-incomplete: true
+rerun-triggers:
+  - mtime
+restart-times: 0
 # override containall/cleanenv for funannotate specifically
 # see https://github.com/snakemake/snakemake/issues/262#issuecomment-3669712984
 set-resources:
@@ -42,28 +67,5 @@ set-resources:
     threads: 64
     mem: "512G"
     sbatch_export: 'APPTAINER_CLEANENV="",APPTAINER_CONTAINALL="",APPTAINER_WRITABLE_TMPFS=""'
-restart-times: 0
-max-jobs-per-second: 50
-max-status-checks-per-second: 10
-local-cores: 2
-cores: 50
-latency-wait: 60
-jobs: 128
-keep-going: true
-keep-storage-local-copies: true
-rerun-incomplete: true
-printshellcmds: true
 use-apptainer: true
-apptainer-prefix: $APPTAINER_CACHEDIR
 use-conda: False
-apptainer-args: "-B $PWD,$TMPDIR,/data \
-  --nv \
-  -H $(mktemp -d) \
-  --pwd $PWD \
-  --env RCLONE_S3_ACCESS_KEY_ID=${RCLONE_S3_ACCESS_KEY_ID} \
-  --env RCLONE_S3_ENDPOINT=${RCLONE_S3_ENDPOINT} \
-  --env RCLONE_S3_PROVIDER=${RCLONE_S3_PROVIDER} \
-  --env RCLONE_S3_SECRET_ACCESS_KEY=${RCLONE_S3_SECRET_ACCESS_KEY} "
-rerun-triggers:
-  - mtime
-benchmark-extended: True
