@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 
 
-def check_if_tiberius_model_requires_softmasking(model_path):
-    model_name = model_path.name
-    return model_name in tools_dict["tiberius"]["requires_softmasking"]
+def check_if_tiberius_model_requires_softmasking(tiberius_model_name):
+    return tiberius_model_name in tools_dict["tiberius"]["requires_softmasking"]
 
 
 def get_tiberius_fasta(wildcards):
-    model_path = get_tiberius_model(wildcards)
-    requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
+    tiberius_model_name = get_tiberius_model_name(wildcards)
+    requires_softmasking = check_if_tiberius_model_requires_softmasking(tiberius_model_name)
     if requires_softmasking:
         return get_softmasked_fasta(wildcards)
     return get_unmasked_fasta(wildcards)
 
 
-def get_tiberius_model(wildcards):
-    tiberius_model = genomes_dict[wildcards.genome]["tiberius_model"]
-    return Path("resources", "tiberius_models", tiberius_model)
+def get_tiberius_model_name(wildcards):
+    return genomes_dict[wildcards.genome]["tiberius_model"]
+
+
+def get_tiberius_model_cfg(wildcards):
+    tiberius_model_name = get_tiberius_model_name(wildcards)
+    return tools_dict["tiberius"]["models"][tiberius_model_name]
 
 
 # The softmasking param is confusing. Models that *require* softmasking need to
@@ -31,34 +34,36 @@ def get_tiberius_model(wildcards):
 # SOLUTION: Add the '--no_softmasking' flag to your command, or use a model
 # trained with softmasking.
 def get_tiberius_softmask_param(wildcards, input):
-    model_path = get_tiberius_model(wildcards)
-    requires_softmasking = check_if_tiberius_model_requires_softmasking(model_path)
+    tiberius_model_name = get_tiberius_model_name(wildcards)
+    requires_softmasking = check_if_tiberius_model_requires_softmasking(
+        tiberius_model_name
+    )
     return "" if requires_softmasking else "--no_softmasking"
 
 
 rule tiberius:
     input:
         fasta=get_tiberius_fasta,
-        model=get_tiberius_model,
     output:
         gtf=Path("results", "run", "{genome}", "tiberius", "tiberius.gtf"),
-    params:
-        batch_size=16,
-        softmask_param=get_tiberius_softmask_param,
     log:
         Path("logs", "{genome}", "tiberius", "tiberius.log"),
     benchmark:
         Path("logs", "{genome}", "tiberius", "tiberius.stats.jsonl")
+    container:
+        tools_dict["tiberius"]["container"]
     resources:
         gpu=1,
         mem=lambda wildcards, attempt: f"{int(attempt*64)}G",  # scales with the longest contig
         runtime=lambda wildcards, attempt: int(attempt * 60),
-    container:
-        tools_dict["tiberius"]["container"]
+    params:
+        batch_size=16,
+        model_cfg=get_tiberius_model_cfg,
+        softmask_param=get_tiberius_softmask_param,
     shell:
         "tiberius.py "
         "--genome {input.fasta} "
-        "--model {input.model} "
+        "--model_cfg {params.model_cfg} "
         "--out {output.gtf} "
         "--batch_size {params.batch_size} "
         "{params.softmask_param} "
@@ -72,12 +77,12 @@ rule expand_tiberius_model:
         directory("resources/tiberius_models/{tiberius_model}"),
     log:
         "logs/expand_tiberius_model/{tiberius_model}.log",
-    resources:
-        runtime=lambda wildcards, attempt: int(attempt * 10),
     shadow:
         "minimal"
     container:
         utils["debian"]
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 10),
     shell:
         "mkdir -p {output} && "
         "tar -zxf {input} -C {output} --strip-components 1 &> {log} && "
@@ -87,18 +92,18 @@ rule expand_tiberius_model:
 rule download_tiberius_model:
     output:
         temp("resources/tiberius_model_files/{tiberius_model}.tar.gz"),
-    params:
-        model_url=lambda wildcards: tools_dict["tiberius"]["models"][
-            wildcards.tiberius_model
-        ],
     log:
         "logs/download_tiberius_model/{tiberius_model}.log",
-    resources:
-        runtime=lambda wildcards, attempt: int(attempt * 10),
     retries: 3
     shadow:
         "minimal"
     container:
         utils["wget"]
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 10),
+    params:
+        model_url=lambda wildcards: tools_dict["tiberius"]["models"][
+            wildcards.tiberius_model
+        ],
     shell:
         "wget -O {output} {params.model_url} &> {log}"

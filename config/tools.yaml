@@ -21,18 +21,19 @@ tools:
       - "land_plant"
       - "vertebrate"
   tiberius:
-    container: "docker://larsgabriel23/tiberius:1.1.8"
+    container: "docker://larsgabriel23/tiberius:2.0.4"
     result_files:
       - "tiberius.gtf"
     models:
-      Eudicotyledons: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/eudicotyledons_weights.tar.gz"
-      Insecta: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/insecta_unmasked_v2.tar.gz"
-      Monocotyledonae: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/monocotyledonae_weights.tar.gz"
-      Fungi: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/fungi.tar.gz" # rhynco
-      Vertebrates: "https://bioinf.uni-greifswald.de/bioinf/tiberius/models/vertebrates_weights.tar.gz"
+      Bacillariophyta: "diatoms.yaml"
+      Chlorophyta: "chlorophyta.yaml"
+      Fungi: "fungi.yaml"
+      Insecta: "insecta.yaml"
+      Mammalia: "mammalia_softmasking_v2.yaml"
+      Mesangiospermae: "angiosperms.yaml"
+      Vertebrata: "vertebrates.yaml"
     requires_softmasking:
-      - Eudicotyledons
-      - Monocotyledonae
+      - none
   funannotate:
     container: "docker://ghcr.io/tomharrop/container-funannotate:1.8.17_cv6"
     result_files:
