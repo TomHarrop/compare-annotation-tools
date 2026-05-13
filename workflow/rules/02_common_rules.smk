@@ -73,6 +73,10 @@ rule download_remote_fasta:
         "wget -O {output} {params.url} &> {log}"
 
 
+# FIXME This is not working on the Spartan worker nodes but it does work on the
+# head node (without SLURM)
+
+
 rule download_s3_fasta:
     output:
         s3_fasta=temp(Path("resources", "s3", "{genome}", "input_genome")),

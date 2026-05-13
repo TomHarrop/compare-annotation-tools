@@ -1,5 +1,5 @@
 ---
-apptainer-args: -B $PWD,$TMPDIR,/data
+apptainer-args: -B $PWD,/data
   --nv
   -H $(mktemp -d)
   --pwd $PWD
@@ -47,8 +47,6 @@ rerun-incomplete: true
 rerun-triggers:
   - mtime
 restart-times: 0
-# override containall/cleanenv for funannotate specifically
-# see https://github.com/snakemake/snakemake/issues/262#issuecomment-3669712984
 set-resources:
   tiberius:
     partitionFlag: "--partition=gpu-a100-short"
@@ -63,6 +61,8 @@ set-resources:
   braker3:
     threads: 32
     mem: "256G"
+  # override containall/cleanenv for funannotate specifically. See
+  # https://github.com/snakemake/snakemake/issues/262#issuecomment-3669712984
   funannotate_predict:
     threads: 64
     mem: "512G"

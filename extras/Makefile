@@ -10,7 +10,11 @@ test:
 		--profile profiles/local \
 		--keep-going \
 		--forceall \
-		resources/s3/gyRhyGra1.2/input_genome
+		-n \
+		results/run/dmTasLan1.2/funannotate/predict_results/dmTasLan1.2.cds-transcripts.fa
+
+
+# 		resources/s3/gyRhyGra1.2/input_genome
 
 
 # 		results/run/gyRhyGra1.2/tiberius/tiberius.gtf

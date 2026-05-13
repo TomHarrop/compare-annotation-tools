@@ -84,9 +84,10 @@ rule funannotate_predict:
         min_training_models=config["parameters"]["busco_min_training_models"],
         outdir=lambda wildcards, output: Path(subpath(output[0], ancestor=2)).resolve(),
         rnaseq=funannotate_rnaseq_param,
+        augustus_dirname=lambda wildcards: f"tmp_opt_{wildcards.genome.lower()}"
     shell:
         "env &> {log.env} && "
-        "mkdir -p {output.predict_misc}/tmp_opt_{wildcards.genome} && "  # see https://github.com/nextgenusfs/funannotate/pull/1149
+        "mkdir -p {output.predict_misc}/{params.augustus_dirname} && "  # see https://github.com/nextgenusfs/funannotate/pull/1149
         'header_length=$( grep "^>" {input.fasta} | wc -L ) ; '
         "cp {input.gm_key} ${{HOME}}/.gm_key ; "
         "funannotate predict "

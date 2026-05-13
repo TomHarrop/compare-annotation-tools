@@ -1,20 +1,19 @@
 ---
-printshellcmds: true
-cores: 12
-rerun-triggers:
-  - mtime
-# need to set TMPDIR if we're using cleanenv
-apptainer-args: -B $PWD,/tmp 
-  -H $(mktemp -d) 
-  --pwd $PWD 
-  --env TMPDIR=/tmp 
-  --env LC_ALL=C 
+apptainer-args: -B $PWD,/tmp
+  -H $(mktemp -d)
+  --pwd $PWD
+  --env TMPDIR=/tmp
+  --env LC_ALL=C
   --env RCLONE_S3_ACCESS_KEY_ID=${RCLONE_S3_ACCESS_KEY_ID}
   --env RCLONE_S3_ENDPOINT=${RCLONE_S3_ENDPOINT}
   --env RCLONE_S3_PROVIDER=${RCLONE_S3_PROVIDER}
   --env RCLONE_S3_SECRET_ACCESS_KEY=${RCLONE_S3_SECRET_ACCESS_KEY}
   --containall --cleanenv --writable-tmpfs
+apptainer-prefix: $APPTAINER_CACHEDIR
+benchmark-extended: True
+cores: 12
+printshellcmds: true
+rerun-triggers:
+  - mtime
 use-apptainer: true
 use-conda: False
-benchmark-extended: True
-apptainer-prefix: $APPTAINER_CACHEDIR
