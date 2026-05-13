@@ -28,6 +28,15 @@ def annotation_tool_input_dict(wildcards):
     return input_dict
 
 
+def check_env_var(var, default=None):
+    value = os.getenv(var)
+    if value is None and default:
+        return default
+    if value is None:
+        raise WorkflowError(f"Environment variable {var} not set")
+    return value
+
+
 def collate_stats():
     collated_stats_dir = Path("results", "collated_stats")
     collated_stats_dir.mkdir(parents=True, exist_ok=True)

@@ -77,6 +77,15 @@ rule download_remote_fasta:
 # head node (without SLURM)
 
 
+def check_env_var(var, default=None):
+    value = os.getenv(var)
+    if value is None and default:
+        return default
+    if value is None:
+        raise WorkflowError(f"Environment variable {var} not set")
+    return value
+
+
 rule download_s3_fasta:
     output:
         s3_fasta=temp(Path("resources", "s3", "{genome}", "input_genome")),
@@ -89,10 +98,10 @@ rule download_s3_fasta:
         runtime=lambda wildcards, attempt: int(attempt * 180),
         shell_exec="sh",
     params:
-        s3_access_key_id=os.getenv("RCLONE_S3_ACCESS_KEY_ID"),
-        s3_endpoint=os.getenv("RCLONE_S3_ENDPOINT"),
-        s3_provider=os.getenv("RCLONE_S3_PROVIDER", "Ceph"),
-        s3_secret_access_key=os.getenv("RCLONE_S3_SECRET_ACCESS_KEY"),
+        s3_access_key_id=check_env_var("RCLONE_S3_ACCESS_KEY_ID"),
+        s3_endpoint=check_env_var("RCLONE_S3_ENDPOINT"),
+        s3_provider=check_env_var("RCLONE_S3_PROVIDER", "Ceph"),
+        s3_secret_access_key=check_env_var("RCLONE_S3_SECRET_ACCESS_KEY"),
         url=lambda wildcards: genomes_dict[wildcards.genome]["fasta_file"],
         outdir=subpath(output.s3_fasta, parent=True),
         filename=lambda wildcards: Path(
