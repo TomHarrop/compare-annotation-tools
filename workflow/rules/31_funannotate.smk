@@ -7,7 +7,8 @@ def funannotate_rnaseq_param(wildcards, input):
     except AttributeError as e:
         return ""
 
-
+# Can't pick `{genome}.parameters.json` up. Augustus outputs it in lower case
+# so it will not match the snakemake wildcard.
 predict_result_files = [
     "{genome}.cds-transcripts.fa",
     "{genome}.discrepency.report.txt",
@@ -15,7 +16,6 @@ predict_result_files = [
     "{genome}.gbk",
     "{genome}.gff3",
     "{genome}.mrna-transcripts.fa",
-    "{genome}.parameters.json",
     "{genome}.proteins.fa",
     "{genome}.scaffolds.fa",
     "{genome}.stats.json",
