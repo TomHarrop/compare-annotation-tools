@@ -104,7 +104,7 @@ dt[, result_label := factor(
 dt <- dt[!is.na(result_label)]
 
 # get the labels from the config file
-config_file <- "config/benchmark.yaml"
+config_file <- "config/benchmark.v2.yaml"
 config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
 genome_orders <- sapply(config_yaml$genomes, function(x) x$ncbi_order)

@@ -29,7 +29,7 @@ rule helixer:
         downloaded_model_path=subpath(input.lineage, parent=True),
         lineage=subpath(input.lineage, basename=True),
     shell:
-        "mktemp && df -h ${TMPDIR} ; "
+        "mktemp && df -h ${{TMPDIR}} ; "
         "Helixer.py "
         "--lineage {params.lineage} "
         "--downloaded-model-path {params.downloaded_model_path} "
