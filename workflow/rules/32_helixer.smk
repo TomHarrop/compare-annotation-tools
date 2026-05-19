@@ -37,7 +37,7 @@ rule helixer:
         "--species {wildcards.genome} "
         "--gff-output-path {output.gff} "
         "&> {log} "
-        "|| df -h ${TMPDIR}"
+        "|| df -h ${{TMPDIR}}"
 
 
 rule download_helixer_model:
