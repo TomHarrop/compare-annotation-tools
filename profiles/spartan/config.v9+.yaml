@@ -50,6 +50,8 @@ rerun-triggers:
   - mtime
 restart-times: 0
 set-resources:
+  rm_model:
+    mem: "256G"
   tiberius:
     partitionFlag: "--partition=gpu-a100"
     threads: 1
