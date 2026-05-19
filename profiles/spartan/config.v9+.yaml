@@ -1,5 +1,6 @@
 ---
-apptainer-args: -B $PWD,/data
+# --env TMPDIR=/tmp breaks Helixer
+apptainer-args: -B $PWD,/data,/tmp
   --nv
   -H $(mktemp -d)
   --pwd $PWD
@@ -50,7 +51,7 @@ rerun-triggers:
 restart-times: 0
 set-resources:
   tiberius:
-    partitionFlag: "--partition=gpu-a100-short"
+    partitionFlag: "--partition=gpu-a100"
     threads: 1
     mem: "256G"
     runtime: 240
