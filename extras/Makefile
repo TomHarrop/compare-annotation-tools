@@ -10,7 +10,7 @@ test:
 		--profile profiles/local \
 		--keep-going \
 		--forceall \
-		results/run/iyExoRobu1.1/input_genome.fasta
+		-n
 
 test_braker_proteins:
 	snakemake \

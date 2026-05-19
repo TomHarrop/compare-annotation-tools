@@ -44,14 +44,18 @@ tool_order <- c(
 )
 
 # TODO: define this somewhere else
+# FIXME check plant order
 order_order <- c(
   "Helotiales",
   "Asparagales",
   "Poales",
+  "Canellales",
+  "Decapoda",
   "Hymenoptera",
   "Clupeiformes",
   "Atheriniformes",
   "Centrarchiformes",
+  "Anura",
   "Squamata",
   "Passeriformes"
 )

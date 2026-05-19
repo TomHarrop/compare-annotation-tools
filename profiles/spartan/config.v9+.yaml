@@ -27,6 +27,7 @@ cluster-generic-submit-cmd: mkdir -p logs/slurm/{rule} &&
   --output=logs/slurm/{rule}/{rule}-%j.out
   --parsable
   --gpus={resources.gpu}
+  --tmp={resources.disk_mb}M
 default-resources:
   - partitionFlag=""
   - exclusive=""
@@ -51,12 +52,12 @@ set-resources:
   tiberius:
     partitionFlag: "--partition=gpu-a100-short"
     threads: 1
-    mem: "105G"
+    mem: "256G"
     runtime: 240
   helixer:
     partitionFlag: "--partition=gpu-a100"
     threads: 1
-    mem: "105G"
+    mem: "256G"
     runtime: 1440
   braker3:
     threads: 32

@@ -15,18 +15,19 @@ rule helixer:
         lineage=get_helixer_lineage,
     output:
         gff=Path("results", "run", "{genome}", "helixer", "helixer.gff3"),
-    params:
-        downloaded_model_path=subpath(input.lineage, parent=True),
-        lineage=subpath(input.lineage, basename=True),
     log:
         Path("logs", "{genome}", "helixer", "helixer.log"),
     benchmark:
         Path("logs", "{genome}", "helixer", "helixer.stats.jsonl")
+    container:
+        tools_dict["helixer"]["container"]
     resources:
         gpu=1,
         runtime=lambda wildcards, attempt: int(attempt * 60),
-    container:
-        tools_dict["helixer"]["container"]
+        disk_mb=int(450e3),
+    params:
+        downloaded_model_path=subpath(input.lineage, parent=True),
+        lineage=subpath(input.lineage, basename=True),
     shell:
         "Helixer.py "
         "--lineage {params.lineage} "
@@ -44,15 +45,15 @@ rule download_helixer_model:
         ),
     log:
         "logs/download_helixer_model/{helixer_lineage}.log",
-    params:
-        outdir=subpath(output.helixer_lineage, parent=True),
-    resources:
-        runtime=lambda wildcards, attempt: int(attempt * 10),
     retries: 3
     shadow:
         "minimal"
     container:
         tools_dict["helixer"]["container"]
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 10),
+    params:
+        outdir=subpath(output.helixer_lineage, parent=True),
     shell:
         "fetch_helixer_models.py "
         "--lineage {wildcards.helixer_lineage} "

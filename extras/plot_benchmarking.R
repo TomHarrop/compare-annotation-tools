@@ -78,14 +78,18 @@ font_family <- "Atkinson Hyperlegible"
 font_size <- 10
 
 # TODO: define this somewhere else
+# FIXME check plant order
 order_order <- c(
   "Helotiales",
   "Asparagales",
   "Poales",
+  "Canellales",
+  "Decapoda",
   "Hymenoptera",
   "Clupeiformes",
   "Atheriniformes",
   "Centrarchiformes",
+  "Anura",
   "Squamata",
   "Passeriformes"
 )
@@ -113,7 +117,7 @@ dt <- rbindlist(
 )
 
 # get the labels from the config file
-config_file <- "config/benchmark.yaml"
+config_file <- "config/benchmark.v2.yaml"
 config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
 genome_orders <- sapply(config_yaml$genomes, function(x) x$ncbi_order)
@@ -177,7 +181,7 @@ pd <- melt(
 )
 
 # FIXME - just plotting tests for now
-pd <- pd[!startsWith(as.character(genome_label), "test")]
+pd <- pd[!startsWith(as.character(genome_label), "test")][!startsWith(as.character(genome_label), "taxid")]
 benchmark_pd <- pd[!startsWith(as.character(tool_label), "Repeat")]
 rm_pd <- pd[startsWith(as.character(tool_label), "Repeat")]
 

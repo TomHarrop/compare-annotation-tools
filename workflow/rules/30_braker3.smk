@@ -49,7 +49,7 @@ rule braker3:
         braker=Path("results", "run", "{genome}", "braker3", "braker.log"),
     benchmark:
         Path("logs", "{genome}", "braker3", "braker3.stats.jsonl")
-    threads: 128
+    threads: 32
     resources:
         runtime=int(3 * 24 * 60),
         mem="230G",
