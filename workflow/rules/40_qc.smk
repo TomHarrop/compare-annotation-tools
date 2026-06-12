@@ -102,7 +102,7 @@ rule annooddities:
         Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.stats.jsonl")
     resources:
         mem="32GB",
-        runtime=60,
+        runtime=180,
     container:
         qc_tools_dict["annooddities"]["container"]
     shadow:
