@@ -23,7 +23,7 @@ tools:
       - "land_plant"
       - "vertebrate"
   tiberius:
-    container: "docker://larsgabriel23/tiberius:2.0.4"
+    container: "docker://larsgabriel23/tiberius:2.0.5"
     result_files:
       - "tiberius.gtf"
     models:

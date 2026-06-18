@@ -101,8 +101,8 @@ rule annooddities:
     benchmark:
         Path("logs", "{genome}", "annooddities", "{tool}.{result_file}.stats.jsonl")
     resources:
-        mem="32GB",
-        runtime=180,
+        mem="64GB",
+        runtime=360,
     container:
         qc_tools_dict["annooddities"]["container"]
     shadow:

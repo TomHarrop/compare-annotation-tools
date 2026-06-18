@@ -56,7 +56,7 @@ set-resources:
     partitionFlag: "--partition=gpu-a100"
     threads: 1
     mem: "256G"
-    runtime: 240
+    runtime: 1440
   helixer:
     partitionFlag: "--partition=gpu-a100"
     threads: 1
