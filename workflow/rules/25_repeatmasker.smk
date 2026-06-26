@@ -56,7 +56,7 @@ rule rm_mask:
         Path("logs", "{genome}", "repeatmasker", "rm_mask.stats.jsonl").resolve()
     threads: lambda wildcards, attempt: 16 * attempt
     resources:
-        runtime=lambda wildcards, attempt: f"{int(1*(attempt))}d",
+        runtime="4d",
         mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
     container:
         utils["tetools"]

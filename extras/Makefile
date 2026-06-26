@@ -10,7 +10,9 @@ test:
 		--profile profiles/local \
 		--keep-going \
 		--forceall \
-		-n
+		--logger snkmt \
+		--logger-snkmt-db "${PWD}/snkmt" \
+		results/aTauPle1.2/braker3/stats/braker.gtf/AnnoOddities.oddity_summary.txt/parsed.csv
 
 test_braker_proteins:
 	snakemake \

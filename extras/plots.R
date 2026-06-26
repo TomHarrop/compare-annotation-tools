@@ -45,20 +45,7 @@ tool_order <- c(
 
 # TODO: define this somewhere else
 # FIXME check plant order
-order_order <- c(
-  "Helotiales",
-  "Asparagales",
-  "Poales",
-  "Canellales",
-  "Decapoda",
-  "Hymenoptera",
-  "Clupeiformes",
-  "Atheriniformes",
-  "Centrarchiformes",
-  "Anura",
-  "Squamata",
-  "Passeriformes"
-)
+order_order <- readLines("config/order-order.txt")[-1]
 
 order_palette <- viridisLite::magma(length(order_order))
 names(order_palette) <- order_order

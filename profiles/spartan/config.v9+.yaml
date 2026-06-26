@@ -50,8 +50,14 @@ rerun-triggers:
   - mtime
 restart-times: 0
 set-resources:
+  annooddities:
+    runtime: "12h"
+  clean_query:
+    mem: "64G"
   rm_model:
     mem: "256G"
+  rm_mask:
+    runtime: "4d"
   tiberius:
     partitionFlag: "--partition=gpu-a100"
     threads: 1
