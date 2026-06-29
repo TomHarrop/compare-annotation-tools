@@ -28,9 +28,8 @@ include: "rules/33_tiberius.smk"
 include: "rules/40_qc.smk"
 include: "rules/50_collate_stats.smk"
 
-
 # Enable this to include debugging rules
-# include: "rules/99_debug.smk"
+include: "rules/99_debug.smk"
 
 
 rule collect_annotation:

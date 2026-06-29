@@ -30,6 +30,13 @@ test_braker:
 		--keep-going --notemp \
 		results/run/test_genome_without_rnaseq/braker3/braker.gff3
 
+check_apptainer_environment:
+	snakemake \
+	--configfile config/test.yaml \
+	--profile profiles/local \
+	check_apptainer_environment
+
+
 graph:
 	snakemake \
 		--configfile config/test.yaml \
