@@ -18,10 +18,17 @@ test_braker_proteins:
 	snakemake \
 		--configfile config/test.yaml \
 		--profile profiles/local \
-		--keep-going --notemp \
+		--keep-going --notemp -n \
 		results/test_genome_without_rnaseq/braker3/stats/braker.gtf/short_summary.specific.busco.json/parsed.csv \
 		results/test_genome_without_rnaseq/braker3/stats/braker.gtf/omark_summary.json/parsed.csv \
 		results/test_genome_without_rnaseq/braker3/stats/braker.gtf/AnnoOddities.oddity_summary.txt/parsed.csv
+
+test_braker:
+	snakemake \
+		--configfile config/test.yaml \
+		--profile profiles/local \
+		--keep-going --notemp \
+		results/run/test_genome_without_rnaseq/braker3/braker.gff3
 
 graph:
 	snakemake \

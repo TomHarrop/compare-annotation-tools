@@ -1,6 +1,6 @@
 tools:
   braker3:
-    container: "docker://teambraker/braker3:v3.0.7.1"
+    container: "docker://teambraker/braker3:v3.1.1"
     result_files:
       - "braker.gff3"
       - "braker.gtf"

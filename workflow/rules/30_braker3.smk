@@ -41,22 +41,22 @@ rule braker3:
                 result_file=braker_result_files + additional_braker_files,
             )
         ),
-    params:
-        rnaseq=braker3_rnaseq_param,
-        outdir=subpath(output[0], parent=True),
     log:
         log=Path("logs", "{genome}", "braker3", "braker3.log"),
         braker=Path("results", "run", "{genome}", "braker3", "braker.log"),
     benchmark:
         Path("logs", "{genome}", "braker3", "braker3.stats.jsonl")
+    shadow:
+        "minimal"
+    container:
+        tools_dict["braker3"]["container"]
     threads: 32
     resources:
         runtime=int(3 * 24 * 60),
         mem="230G",
-    container:
-        tools_dict["braker3"]["container"]
-    shadow:
-        "minimal"
+    params:
+        rnaseq=braker3_rnaseq_param,
+        outdir=subpath(output[0], parent=True),
     shell:
         "braker.pl "
         "--genome={input.fasta} "
@@ -77,12 +77,12 @@ rule expand_orthodb_division:
         timestamp="resources/orthodb_division/{orthodb_division}.fa.TIMESTAMP",
     log:
         "logs/expand_orthodb_division/{orthodb_division}.log",
-    resources:
-        runtime=lambda wildcards, attempt: int(attempt * 10),
     shadow:
         "minimal"
     container:
         utils["debian"]
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 10),
     shell:
         "gunzip -c {input} > {output.fasta} 2> {log} && "
         "printf $(date -Iseconds) > {output.timestamp}"
@@ -91,18 +91,18 @@ rule expand_orthodb_division:
 rule download_orthodb_division:
     output:
         temp("resources/orthodb_division_files/{orthodb_division}.fa.gz"),
-    params:
-        model_url=lambda wildcards: tools_dict["braker3"]["orthodb_divisions"][
-            wildcards.orthodb_division
-        ],
     log:
         "logs/download_orthodb_division/{orthodb_division}.log",
-    resources:
-        runtime=lambda wildcards, attempt: int(attempt * 10),
     retries: 3
     shadow:
         "minimal"
     container:
         utils["wget"]
+    resources:
+        runtime=lambda wildcards, attempt: int(attempt * 10),
+    params:
+        model_url=lambda wildcards: tools_dict["braker3"]["orthodb_divisions"][
+            wildcards.orthodb_division
+        ],
     shell:
         "wget -O {output} {params.model_url} &> {log}"
