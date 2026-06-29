@@ -59,10 +59,12 @@ rule braker3:
         outdir=subpath(output[0], parent=True),
         AUGUSTUS_CONFIG_PATH="/opt/Augustus/config",  # from the container
     shell:
-        "cp -r {params.AUGUSTUS_CONFIG_PATH} ./AUGUSTUS_CONFIG "
+        "AUGUSTUS_CONFIG=$( mktemp -d ) "
+        "&& "
+        "cp -r {params.AUGUSTUS_CONFIG_PATH}/* ${{AUGUSTUS_CONFIG}}/ "
         "&& "
         "braker.pl "
-        "--AUGUSTUS_CONFIG_PATH=$( readlink -f ./AUGUSTUS_CONFIG ) "
+        "--AUGUSTUS_CONFIG_PATH=$( readlink -f ${{AUGUSTUS_CONFIG}} ) "
         "--genome={input.fasta} "
         "--prot_seq={input.orthodb} "
         "--gff3 "
