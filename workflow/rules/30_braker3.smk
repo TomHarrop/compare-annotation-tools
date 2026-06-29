@@ -34,9 +34,6 @@ rule braker3:
         unpack(annotation_tool_input_dict),
         fasta=get_softmasked_fasta,
         orthodb=get_orthodb_division,
-        AUGUSTUS_CONFIG_PATH=Path(
-            "results", "run", "{genome}", "braker3", "augustus_config"
-        ),
     output:
         temp(
             expand(
@@ -60,12 +57,12 @@ rule braker3:
     params:
         rnaseq=braker3_rnaseq_param,
         outdir=subpath(output[0], parent=True),
-        AUGUSTUS_CONFIG_PATH=lambda wildcards, input: Path(input.AUGUSTUS_CONFIG_PATH)
-        .resolve()
-        .as_posix(),
+        AUGUSTUS_CONFIG_PATH="/opt/Augustus/config",  # from the container
     shell:
+        "cp -r {params.AUGUSTUS_CONFIG_PATH} ./AUGUSTUS_CONFIG "
+        "&& "
         "braker.pl "
-        "--AUGUSTUS_CONFIG_PATH={params.AUGUSTUS_CONFIG_PATH} "
+        "--AUGUSTUS_CONFIG_PATH=$( readlink -f ./AUGUSTUS_CONFIG ) "
         "--genome={input.fasta} "
         "--prot_seq={input.orthodb} "
         "--gff3 "
@@ -74,19 +71,6 @@ rule braker3:
         "--species={wildcards.genome} "
         "&> {log.log} "
         "&& mv braker/* {params.outdir}/ "
-
-
-rule braker_augustus_config:
-    output:
-        AUGUSTUS_CONFIG_PATH=temp(
-            directory(Path("results", "run", "{genome}", "braker3", "augustus_config"))
-        ),
-    container:
-        tools_dict["braker3"]["container"]
-    params:
-        AUGUSTUS_CONFIG_PATH="/opt/Augustus/config",  # from the container
-    shell:
-        "cp -r {params.AUGUSTUS_CONFIG_PATH} {output.AUGUSTUS_CONFIG_PATH}"
 
 
 rule expand_orthodb_division:
