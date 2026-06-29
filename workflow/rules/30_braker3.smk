@@ -78,8 +78,8 @@ rule braker3:
 
 rule braker_augustus_config:
     output:
-        AUGUSTUS_CONFIG_PATH=directory(
-            Path("results", "run", "{genome}", "braker3", "augustus_config")
+        AUGUSTUS_CONFIG_PATH=temp(
+            directory(Path("results", "run", "{genome}", "braker3", "augustus_config"))
         ),
     container:
         tools_dict["braker3"]["container"]

@@ -30,12 +30,22 @@ test_braker:
 		--keep-going --notemp \
 		results/run/test_genome_without_rnaseq/braker3/braker.gff3
 
+fungus_braker:
+	XDG_DATA_HOME=${PWD} \
+	snakemake \
+	--configfile config/benchmark.v2.yaml \
+	--profile profiles/local \
+	--keep-going \
+	--forceall \
+	--logger snkmt \
+	-n \
+	results/run/gyRhyGra1.2/braker3/braker.gff3
+
 check_apptainer_environment:
 	snakemake \
 	--configfile config/test.yaml \
 	--profile profiles/local \
 	check_apptainer_environment
-
 
 graph:
 	snakemake \
