@@ -31,7 +31,7 @@ tools:
       Chlorophyta: "chlorophyta.yaml"
       Fungi: "fungi.yaml"
       Insecta: "insecta.yaml"
-      Mammalia: "mammalia_softmasking_v2.yaml"
+      Mammalia: "mammalia_nosofttmasking_v2.yaml"
       Mesangiospermae: "angiosperms.yaml"
       Vertebrata: "vertebrates.yaml"
     requires_softmasking:
@@ -53,7 +53,7 @@ utils:
   wget: "docker://quay.io/biocontainers/gnu-wget:1.18--hb829ee6_10"
 qc:
   annooddities:
-    container: "docker://gemygk/annooddities:v0.2.0"
+    container: "docker://gemygk/annooddities:v0.2.1"
     result_files:
       - "AnnoOddities.tar.gz"
       - "AnnoOddities.gff"
