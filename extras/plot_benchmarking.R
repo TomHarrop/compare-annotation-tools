@@ -173,6 +173,11 @@ dt[, `Wall time (h)` := s / (60 * 60)]
 dt[, "Peak RAM (GB)*" := max_pss / (1024)]
 dt[, "CPU (M percent-seconds)" := cpu_usage / (1e6)]
 
+
+# rough calc - SU braker vs tiberius
+dt[, median(`Service units (approx.)`), by = tool_label]
+dt[, length(`Service units (approx.)`), by = tool_label]
+
 # melt
 pd <- melt(
   dt,
