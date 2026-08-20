@@ -53,7 +53,7 @@ set-resources:
   annooddities:
     runtime: "12h"
   clean_query:
-    mem: "64G"
+    mem: "256G"
   rm_model:
     mem: "256G"
   rm_mask:
