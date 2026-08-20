@@ -94,6 +94,34 @@ To use an ODB12 database for QC and an ODB10 database for funnanotate, use the `
         busco_lineage: "embryophyta_odb10"
 ```
 
+## Running
+
+
+Annotation tools are error-prone.
+
+I find it helpful to use
+[snakemake-logger-plugin-snkmt](https://github.com/cademirch/snkmt) to
+investigate fails.
+
+You can use the `$XDG_DATA_HOME` variable to control where the `snkmt` database is written e.g.
+
+```bash
+nohup bash -c \
+  'PROJECT=punim1712 \
+  XDG_DATA_HOME=/data/gpfs/projects/punim1712/compare-annotation-tools \
+  snakemake \
+  --configfile config/benchmark.v2.yaml \
+  --profile profiles/spartan \
+  --keep-going \
+  --logger snkmt' &> sm.log &
+```
+
+Then view the log with snkmt:
+
+```bash
+snkmt console \
+  --db-path /path/to/compare-annotation-tools/snkmt/snkmt.db
+```
 
 
 ## Overview
