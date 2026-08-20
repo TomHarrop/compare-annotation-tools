@@ -17,13 +17,15 @@
     - fOphBen1.1 braker error, unexpected letter found in sequence /opt/ETP/bin/gmes/ProtHint/bin/proteins_from_gtf.pl: CCAGAAAATGGTGTTTCTTCTTCGACTTTTCATCATTTTCACCATTTANCAFFOLN
     - rm input (funannotate clean output) is fine
 - [X] aCriSig and lsXanJohn1.1 clean_query ran out of mem with mem=64G
-- [ ] fApoMad1.1m
+- [X] fApoMad1.1m
   - rm failed, need to handle:
   - FATAL ERROR: RepeatModeler giving up. One or more
 batches failed!  Unfortunately this type of error
 cannot be recovered from. Please submit the following
 details to the feedback page at the repeatmasker
 website:
+  - **actually, the rm_model fail is handled. this didn't work because of this error:
+    - `cp: error copying 'results/run/fApoMad1.1/repeatmasker/input_genome.fasta' to 'results/run/fApoMad1.1/input_genome.masked.fasta': Disk quota exceeded`
 - [X] .2 results/run/rHetBin1.2/input_genome.masked.fasta is size 0
   - rerun
 

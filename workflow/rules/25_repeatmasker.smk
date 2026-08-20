@@ -16,8 +16,10 @@ rule rm_target:
         get_rm_genome,
     output:
         fa=Path("results", "run", "{genome}", "input_genome.masked.fasta"),
+    log:
+        Path("logs", "{genome}", "repeatmasker", "rm_target.log").resolve(),
     shell:
-        "cp {input} {output}"
+        "cp {input} {output} $> {log}"
 
 
 rule rm_mask:
@@ -45,21 +47,21 @@ rule rm_mask:
         fa=Path(
             "results", "run", "{genome}", "repeatmasker", "input_genome.fasta.masked"
         ),
+    log:
+        Path("logs", "{genome}", "repeatmasker", "rm_mask.log").resolve(),
+    benchmark:
+        Path("logs", "{genome}", "repeatmasker", "rm_mask.stats.jsonl").resolve()
+    container:
+        utils["tetools"]
+    threads: lambda wildcards, attempt: 16 * attempt
+    resources:
+        runtime="4d",
+        mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
     params:
         fa_dir=subpath(input.fa, parent=True),
         fa=subpath(input.fa, basename=True),
         lib=subpath(input.cons, basename=True),
         threads=lambda wildcards, threads: int(threads // 4),
-    log:
-        Path("logs", "{genome}", "repeatmasker", "rm_mask.log").resolve(),
-    benchmark:
-        Path("logs", "{genome}", "repeatmasker", "rm_mask.stats.jsonl").resolve()
-    threads: lambda wildcards, attempt: 16 * attempt
-    resources:
-        runtime="4d",
-        mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
-    container:
-        utils["tetools"]
     shell:
         "cd {params.fa_dir} || exit 1 ; "
         "RepeatMasker "
@@ -87,21 +89,21 @@ rule rm_classify:
             "repeatmasker",
             "input_genome-families.fa.classified",
         ),
-    params:
-        fa_dir=subpath(input.fa, parent=True),
-        consensi=subpath(input.fa, basename=True),
-        stockholm=subpath(input.stk, basename=True),
     log:
         Path("logs", "{genome}", "repeatmasker", "rm_classify.log").resolve(),
     benchmark:
         Path("logs", "{genome}", "repeatmasker", "rm_classify.stats.jsonl").resolve()
     retries: 0
+    container:
+        utils["tetools"]
     threads: lambda wildcards, attempt: 16 * attempt
     resources:
         runtime=lambda wildcards, attempt: f"{int(1*(attempt))}d",
         mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
-    container:
-        utils["tetools"]
+    params:
+        fa_dir=subpath(input.fa, parent=True),
+        consensi=subpath(input.fa, basename=True),
+        stockholm=subpath(input.stk, basename=True),
     shell:
         "cd {params.fa_dir} || exit 1 ; "
         "RepeatClassifier "
@@ -117,7 +119,6 @@ rule rm_classify:
 # rule. If the size is zero, just use the output from clean_query as the
 # "masked" genome. If it's not zero, use the output of rm_mask (i.e. trigger
 # masking if there are repeats found.)
-#
 #
 # The rm_model script handles timeouts by stopping RepeatModeler 10 minutes
 # before `runtime` expires, and finding the latest round with a completed
@@ -142,19 +143,19 @@ checkpoint rm_model:
         fa=Path(
             "results", "run", "{genome}", "repeatmasker", "input_genome-families.fa"
         ),
-    params:
-        fa_dir=subpath(input.fa, parent=True),
     log:
         Path("logs", "{genome}", "repeatmasker", "rm_model.log").resolve(),
     benchmark:
         Path("logs", "{genome}", "repeatmasker", "rm_model.stats.jsonl").resolve()
     retries: 0
+    container:
+        utils["tetools"]
     threads: lambda wildcards, attempt: 16 * attempt
     resources:
         runtime="4d",
         mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
-    container:
-        utils["tetools"]
+    params:
+        fa_dir=subpath(input.fa, parent=True),
     script:
         "../scripts/rm_model.sh"
 
@@ -176,17 +177,17 @@ rule rm_build:
             ".nsq",
             ".translation",
         ),
-    params:
-        fa_dir=subpath(input.fa, parent=True),
     log:
         Path("logs", "{genome}", "repeatmasker", "rm_build.log").resolve(),
     benchmark:
         Path("logs", "{genome}", "repeatmasker", "rm_build.stats.jsonl").resolve()
+    container:
+        utils["tetools"]
     threads: 1
     resources:
         runtime=lambda wildcards, attempt: f"{int(1*(attempt))}d",
-    container:
-        utils["tetools"]
+    params:
+        fa_dir=subpath(input.fa, parent=True),
     shell:
         "cd {params.fa_dir} || exit 1 && "
         "BuildDatabase "
@@ -205,12 +206,12 @@ rule clean_query:
     benchmark:
         Path("logs", "{genome}", "repeatmasker", "clean_query.stats.jsonl")
     retries: 2
+    container:
+        tools_dict["funannotate"]["container"]
     threads: lambda wildcards, attempt: 16 * attempt
     resources:
         runtime=lambda wildcards, attempt: f"{int(1*(attempt))}d",
         mem=lambda wildcards, attempt: f"{int(8**(attempt+1))}GB",
-    container:
-        tools_dict["funannotate"]["container"]
     shell:
         "funannotate clean "
         "--exhaustive "
