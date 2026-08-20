@@ -11,15 +11,12 @@
 
 ## Annotations to fix
 
+### RepeatMasker
+
 - [X] fOphBen repeat masker output is corrupted.
     - fOphBen1.1 braker error, unexpected letter found in sequence /opt/ETP/bin/gmes/ProtHint/bin/proteins_from_gtf.pl: CCAGAAAATGGTGTTTCTTCTTCGACTTTTCATCATTTTCACCATTTANCAFFOLN
     - rm input (funannotate clean output) is fine
-
-- [ ] aCriSig and lsXanJohn1.1 clean_query ran out of mem with mem=64G
-
-- [ ] bAcaMag1.2, mMacGis1.1, bEmbPic1.2,  exited funny (switch model)
-- [ ] aTauPle1.2 braker mv failed, rerun
-
+- [X] aCriSig and lsXanJohn1.1 clean_query ran out of mem with mem=64G
 - [ ] fApoMad1.1m, rHetBin1.2 
   - results/run/rHetBin1.2/input_genome.masked.fasta is size 0
   - rm failed, need to handle:
@@ -28,6 +25,14 @@ batches failed!  Unfortunately this type of error
 cannot be recovered from. Please submit the following
 details to the feedback page at the repeatmasker
 website:
+
+### Funannotate
+
+- [X] bAcaMag1.2, mMacGis1.1, bEmbPic1.2,  exited funny (switch model)
+
+### Braker
+
+- [ ] aTauPle1.2 braker mv failed, rerun
 
 ### annooddities
 
