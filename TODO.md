@@ -36,4 +36,4 @@ website:
     - .snakemake/shadow/tmpldwr6_c5/fApoMad1.1.mikado_tab_stats.log
     - TypeError: The exon data for agat-transcript-21970 should all be located on chromosome scaffold_102, but the providedexon data is on a different chromosome, scaffold_164. scaffold_164 Tiberius       exon    6679    6751    .       +       0       ID=agat-exon-246969;Parent=agat-transcript-21970
   - **actually mikado is failing on all Tiberius annotations**
-- [ ] could be a tiberius bug, re-run with latest container.
+- [X] could be a tiberius bug, re-run with latest container.
