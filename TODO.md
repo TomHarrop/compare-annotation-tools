@@ -32,7 +32,7 @@ website:
 
 ### Braker
 
-- [ ] aTauPle1.2 braker mv failed, rerun
+- [X] aTauPle1.2 braker mv failed, rerun
 
 ### annooddities
 
