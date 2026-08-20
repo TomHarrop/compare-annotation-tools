@@ -2,12 +2,12 @@
 
 ### Funannotate
 
-- [ ] mPerGun1.1, qmEuaArma1.1 funannotate out of time after runtime=5760
+- [X] mPerGun1.1, qmEuaArma1.1 funannotate out of time after runtime=5760
 
 ### Braker
 
-- [ ] qmEuaArma1.1 braker GeneMark not enough hits
-- [ ] iyExoRobu1.1 braker out of time after runtime=4320
+- [x] qmEuaArma1.1 braker GeneMark not enough hits
+- [X] iyExoRobu1.1 braker out of time after runtime=4320
 
 ## Annotations to fix
 

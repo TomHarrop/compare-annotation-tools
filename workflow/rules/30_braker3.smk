@@ -52,7 +52,7 @@ rule braker3:
         tools_dict["braker3"]["container"]
     threads: 32
     resources:
-        runtime=int(3 * 24 * 60),
+        runtime="4d",
         mem="230G",
     params:
         rnaseq=braker3_rnaseq_param,

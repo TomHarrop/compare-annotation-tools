@@ -7,6 +7,7 @@ def funannotate_rnaseq_param(wildcards, input):
     except AttributeError as e:
         return ""
 
+
 # Can't pick `{genome}.parameters.json` up. Augustus outputs it in lower case
 # so it will not match the snakemake wildcard.
 predict_result_files = [
@@ -71,7 +72,7 @@ rule funannotate_predict:
     threads: 128
     resources:
         mem="230G",
-        runtime=int(4 * 24 * 60),
+        runtime="4d",
     params:
         busco_lineage_name=subpath(input.busco_lineage, basename=True),
         busco_seed_species=lambda wildcards: genomes_dict[wildcards.genome][
@@ -84,7 +85,7 @@ rule funannotate_predict:
         min_training_models=config["parameters"]["busco_min_training_models"],
         outdir=lambda wildcards, output: Path(subpath(output[0], ancestor=2)).resolve(),
         rnaseq=funannotate_rnaseq_param,
-        augustus_dirname=lambda wildcards: f"tmp_opt_{wildcards.genome.lower()}"
+        augustus_dirname=lambda wildcards: f"tmp_opt_{wildcards.genome.lower()}",
     shell:
         "env &> {log.env} && "
         "mkdir -p {output.predict_misc}/{params.augustus_dirname} && "  # see https://github.com/nextgenusfs/funannotate/pull/1149
