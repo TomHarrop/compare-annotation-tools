@@ -54,9 +54,12 @@ set-resources:
     runtime: "12h"
   clean_query:
     mem: "256G"
+  rm_build:
+    runtime: "4d"
+  rm_mask:
+    runtime: "4d"
   rm_model:
     mem: "256G"
-  rm_mask:
     runtime: "4d"
   tiberius:
     partitionFlag: "--partition=gpu-a100"
