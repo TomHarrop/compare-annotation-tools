@@ -11,7 +11,7 @@
 
 ## Annotations to fix
 
-- [ ] fOphBen repeat masker output is corrupted.
+- [X] fOphBen repeat masker output is corrupted.
     - fOphBen1.1 braker error, unexpected letter found in sequence /opt/ETP/bin/gmes/ProtHint/bin/proteins_from_gtf.pl: CCAGAAAATGGTGTTTCTTCTTCGACTTTTCATCATTTTCACCATTTANCAFFOLN
     - rm input (funannotate clean output) is fine
 
