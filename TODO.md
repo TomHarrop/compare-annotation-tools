@@ -24,7 +24,7 @@ batches failed!  Unfortunately this type of error
 cannot be recovered from. Please submit the following
 details to the feedback page at the repeatmasker
 website:
-- [X] rHetBin1.2 results/run/rHetBin1.2/input_genome.masked.fasta is size 0
+- [X] .2 results/run/rHetBin1.2/input_genome.masked.fasta is size 0
   - rerun
 
 ### Funannotate
