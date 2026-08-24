@@ -2,12 +2,14 @@
 
 ### Funannotate
 
-- [X] mPerGun1.1, qmEuaArma1.1 funannotate out of time after runtime=5760
+- [X] qmEuaArma1.1, mMacGis1.1, bAcaMag1.2 out of time after runtime=5760
+  - mPerGun1.1 also timed out but it was on the BUSCO step
 
 ### Braker
 
 - [x] qmEuaArma1.1 braker GeneMark not enough hits
-- [X] iyExoRobu1.1 braker out of time after runtime=4320
+  - tried Metazoa
+- [X] iyExoRobu1.1 braker out of time after runtime=5760
 
 ## Annotations to fix
 
@@ -38,10 +40,13 @@ website:
 ### Braker
 
 - [X] aTauPle1.2 braker mv failed, rerun
+  - [ ] aTauPle1.2  not enough hits maybe? try a different orthodb partition.
+    see
+    https://github.com/Gaius-Augustus/BRAKER/issues/665#issuecomment-1702229822
 
 ### annooddities
 
-- [ ] fApoMad1.1
+- [X] fApoMad1.1
   - mikado fail, re-run to work out
     - .snakemake/shadow/tmpldwr6_c5/fApoMad1.1.mikado_tab_stats.log
     - TypeError: The exon data for agat-transcript-21970 should all be located on chromosome scaffold_102, but the providedexon data is on a different chromosome, scaffold_164. scaffold_164 Tiberius       exon    6679    6751    .       +       0       ID=agat-exon-246969;Parent=agat-transcript-21970
