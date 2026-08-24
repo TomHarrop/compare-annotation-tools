@@ -19,7 +19,7 @@ rule rm_target:
     log:
         Path("logs", "{genome}", "repeatmasker", "rm_target.log").resolve(),
     shell:
-        "cp {input} {output} $> {log}"
+        "cp {input} {output} &> {log}"
 
 
 rule rm_mask:
