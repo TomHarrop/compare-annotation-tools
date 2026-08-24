@@ -53,6 +53,7 @@ set-resources:
   annooddities:
     runtime: "12h"
   clean_query:
+    runtime: "4d"
     mem: "256G"
   rm_build:
     runtime: "4d"
