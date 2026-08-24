@@ -8,7 +8,7 @@
 ### Braker
 
 - [x] qmEuaArma1.1 braker GeneMark not enough hits
-  - tried Metazoa
+  - tried Arthropoda, Metazoa
 - [X] iyExoRobu1.1 braker out of time after runtime=5760
 
 ## Annotations to fix
@@ -40,7 +40,7 @@ website:
 ### Braker
 
 - [X] aTauPle1.2 braker mv failed, rerun
-  - [ ] aTauPle1.2  not enough hits maybe? try a different orthodb partition.
+  - [x] aTauPle1.2  not enough hits maybe? try a different orthodb partition.
     see
     https://github.com/Gaius-Augustus/BRAKER/issues/665#issuecomment-1702229822
 
