@@ -3,13 +3,17 @@
 ### Funannotate
 
 - [X] qmEuaArma1.1, mMacGis1.1, bAcaMag1.2 out of time after runtime=5760
-  - mPerGun1.1 also timed out but it was on the BUSCO step
+  - mPerGun1.1, aCriSig2.1 also timed out but it was on the BUSCO step
 
 ### Braker
 
 - [x] qmEuaArma1.1 braker GeneMark not enough hits
-  - tried Arthropoda, Metazoa
+  - tried Arthropoda, Metazoa, Eukaryota
 - [X] iyExoRobu1.1 braker out of time after runtime=5760
+- [X] aTauPle1.2 braker mv failed, rerun
+  - [x] aTauPle1.2  not enough hits maybe? try a different orthodb partition.
+    see
+    https://github.com/Gaius-Augustus/BRAKER/issues/665#issuecomment-1702229822
 
 ## Annotations to fix
 
@@ -36,13 +40,12 @@ website:
 ### Funannotate
 
 - [X] bAcaMag1.2, mMacGis1.1, bEmbPic1.2,  exited funny (switch model)
+- [ ] fApoMad1.1, fOphBen1.1 - no hits with BUSCO actinopterygii_odb10
+- [ ] rHetBin1.2  exited funny (switch model)
 
 ### Braker
 
-- [X] aTauPle1.2 braker mv failed, rerun
-  - [x] aTauPle1.2  not enough hits maybe? try a different orthodb partition.
-    see
-    https://github.com/Gaius-Augustus/BRAKER/issues/665#issuecomment-1702229822
+- [ ] aCriSig2.1 0 hits from DIAMOND
 
 ### annooddities
 
