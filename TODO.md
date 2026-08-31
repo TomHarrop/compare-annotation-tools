@@ -40,12 +40,12 @@ website:
 ### Funannotate
 
 - [X] bAcaMag1.2, mMacGis1.1, bEmbPic1.2,  exited funny (switch model)
-- [ ] fApoMad1.1, fOphBen1.1 - no hits with BUSCO actinopterygii_odb10
-- [ ] rHetBin1.2  exited funny (switch model)
+- [X] fApoMad1.1, fOphBen1.1 - no hits with BUSCO actinopterygii_odb10
+- [X] rHetBin1.2  exited funny (switch model)
 
 ### Braker
 
-- [ ] aCriSig2.1 0 hits from DIAMOND
+- [X] aCriSig2.1 0 hits from DIAMOND
 
 ### annooddities
 
