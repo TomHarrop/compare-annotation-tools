@@ -4,6 +4,9 @@
 
 - [X] qmEuaArma1.1, mMacGis1.1, bAcaMag1.2 out of time after runtime=5760
   - mPerGun1.1, aCriSig2.1 also timed out but it was on the BUSCO step
+- [X] fApoMad1.1, fOphBen1.1
+  - no BUSCO hits. Tried actinopterygii_odb10, eukaryota_odb10
+
 
 ### Braker
 
@@ -14,6 +17,10 @@
   - [x] aTauPle1.2  not enough hits maybe? try a different orthodb partition.
     see
     https://github.com/Gaius-Augustus/BRAKER/issues/665#issuecomment-1702229822
+      - no luck, tried Eukaryota and Vertebrata
+- [X] aCriSig2.1 0 hits from DIAMOND
+  - tried Eukaryota, Vertebrata
+
 
 ## Annotations to fix
 
@@ -40,12 +47,11 @@ website:
 ### Funannotate
 
 - [X] bAcaMag1.2, mMacGis1.1, bEmbPic1.2,  exited funny (switch model)
-- [X] fApoMad1.1, fOphBen1.1 - no hits with BUSCO actinopterygii_odb10
+
 - [X] rHetBin1.2  exited funny (switch model)
 
 ### Braker
 
-- [X] aCriSig2.1 0 hits from DIAMOND
 
 ### annooddities
 
