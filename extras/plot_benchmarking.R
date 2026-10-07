@@ -85,6 +85,7 @@ order_order <- c(
   "Poales",
   "Canellales",
   "Decapoda",
+  "Lepidoptera",
   "Hymenoptera",
   "Clupeiformes",
   "Atheriniformes",
