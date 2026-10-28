@@ -77,23 +77,7 @@ slide_height <- 142.9
 font_family <- "Atkinson Hyperlegible"
 font_size <- 10
 
-# TODO: define this somewhere else
-# FIXME check plant order
-order_order <- c(
-  "Helotiales",
-  "Asparagales",
-  "Poales",
-  "Canellales",
-  "Decapoda",
-  "Lepidoptera",
-  "Hymenoptera",
-  "Clupeiformes",
-  "Atheriniformes",
-  "Centrarchiformes",
-  "Anura",
-  "Squamata",
-  "Passeriformes"
-)
+order_order <- readLines("config/order-order.txt")[-1]
 
 order_palette <- viridisLite::magma(length(order_order))
 names(order_palette) <- order_order
@@ -123,6 +107,8 @@ config_yaml <- yaml::read_yaml(config_file)
 labelled_genomes <- sapply(config_yaml$genomes, function(x) x$label)
 genome_orders <- sapply(config_yaml$genomes, function(x) x$ncbi_order)
 
+# drop genomes that aren't in the config
+dt[!wildcards.genome %in% names(genome_orders), .ROW := NULL]
 
 dt[
   , genome_label := plyr::revalue(

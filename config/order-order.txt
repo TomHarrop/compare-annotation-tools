@@ -1,0 +1,18 @@
+# list of ncbi_order values giving the order they should appear in plots
+Helotiales
+Canellales
+Asparagales
+Poales
+Decapoda
+Hymenoptera
+Lepidoptera
+Gobiiformes
+Clupeiformes
+Synbranchiformes
+Atheriniformes
+Centrarchiformes
+Anura
+Squamata
+Passeriformes
+Peramelemorphia
+Chiroptera
