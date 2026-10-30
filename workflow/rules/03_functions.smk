@@ -102,6 +102,17 @@ def get_busco_lineage(wildcards):
     )
 
 
+def get_busco_lineage_for_qc(wildcards):
+    genome = wildcards.get("genome")
+    tool = wildcards.get("tool")
+
+    busco_lineage = genomes_dict[genome]["busco_lineage"]
+
+    return rules.expand_busco_lineage_files.output.busco_lineage.format(
+        busco_lineage=busco_lineage
+    )
+
+
 def get_softmasked_fasta(wildcards):
     genome_config = genomes_dict[wildcards.genome]
     if genome_config.get("run_softmasking", False):

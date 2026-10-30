@@ -5,7 +5,7 @@ rule atol_qc_annotation:
     input:
         annotation=Path("results", "{genome}", "{tool}", "annotation", "{result_file}"),
         fasta=Path("results", "run", "{genome}", "input_genome.fasta"),
-        busco_lineage=get_busco_lineage,
+        busco_lineage=get_busco_lineage_for_qc,
         db="data/omark/LUCA.h5",
         ete_ncbi_db="data/omark/ete/taxa.sqlite",
     output:
